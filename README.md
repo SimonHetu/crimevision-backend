@@ -1,9 +1,9 @@
-===============================================================================================
+
 # 🧿 Crime Vision 🧿
-===============================================================================================
+
 
 CrimeVision est une application cartographique interactive qui visualise les données criminelles de Montréal afin d’aider les utilisateurs à comprendre les tendances, améliorer leur vigilance et prendre des décisions éclairées.
-===============================================================================================
+
 # Installation:
 
 ## 1.Clone
@@ -16,7 +16,7 @@ npm install
 
 ## 3.Creation du .env
 cp .env.example .env
-===============================================================================================
+
 ## Option A: Recréer complètement la base de données
 ## En recréant une base de donnée
 DATABASE_URL="votre_url_neon_postgresql_ici" (Sur votre compte personnel)
@@ -30,7 +30,7 @@ npx tsx src/scripts/importPdq.ts
 
 ### Import des incidents criminels:
 npx ts-node src/scripts/importCrimes.ts
-===============================================================================================
+
 
 ## Option B: Utiliser ma base de données existante
 ## Insérer adresse de projet Neon
@@ -41,7 +41,7 @@ JWT_SECRET="votre_cle_secrete_pour_le_token"
 npx prisma generate
 
 
-===============================================================================================
+
 ## 6.Lancer le serveur
 npm run dev
 
@@ -51,12 +51,12 @@ Si tout fonctionne:
 # 7. Test:
 Le projet inclut un fichier request.rest compatible avec l’extension REST Client de VS Code.
 
-===============================================================================================
+
 # Version anglaise:
 
-===============================================================================================
+
 # 🧿 Crime Vision 🧿
-===============================================================================================
+
 
 CrimeVision is an interactive map app that visualizes Montreal crime data to help users understand patterns, improve awareness and make informed decisions.
 

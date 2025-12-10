@@ -6,8 +6,6 @@ import { neonConfig } from "@neondatabase/serverless";
 
 import ws from "ws";
 
-
-
 // =========================================================
 //******* DOWNLOAD INCIDENT DATA  *******
 // =========================================================
