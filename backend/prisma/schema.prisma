@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+enum TimePeriod {
+  jour
+  nuit
+  soir
+}
+
+model Pdq {
+  id              Int        @id
+  name            String     @default("")
+  address         String     @default("")
+  cityCode        String     @default("")
+  latitude        Float      @default(0)
+  longitude       Float      @default(0)
+
+  incidents Incident[]         
+}
+
+model Incident {
+  id              Int       @id @default(autoincrement())
+  category        String
+  date            DateTime
+  timePeriod      TimePeriod
+
+  // Geometrie 
+  x               Float?
+  y               Float?
+  longitude       Float?
+  latitude        Float?
+
+  // PDQ relation
+  pdqId           Int
+  pdq             Pdq       @relation(fields: [pdqId], references: [id]) 
+}
+
+model User {
+  id              Int       @id @default(autoincrement())
+  email           String    @unique
+  name            String
+  pseudo          String    @unique
+  hashedPassword  String
+  createdAt       DateTime  @default(now())
+}

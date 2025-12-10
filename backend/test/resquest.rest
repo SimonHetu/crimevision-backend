@@ -1,0 +1,160 @@
+
+// =========================================================
+// ----- INCIDENTS -----
+// =========================================================
+
+### List incidents (limit:20)
+GET http://localhost:3000/api/incidents?timePeriod=jour&pdqId=30&limit=20
+Accept: application/json
+
+### GET by Id
+GET http://localhost:3000/api/incidents/1
+
+
+### Invalid ID (NaN)
+GET http://localhost:3000/api/incidents/abc
+
+### Invalid ID (inexistant)
+GET http://localhost:3000/api/incidents/99999999
+
+
+// =========================================================
+// ----- PDQ -----
+// =========================================================
+
+### List all PDQs
+GET http://localhost:3000/api/pdq
+Accept: application/json
+
+### Get PDQ by ID
+GET http://localhost:3000/api/pdq/30
+Accept: application/json
+
+
+
+// =========================================================
+// ----- USER -----
+// =========================================================
+
+### Create User - Success
+POST http://localhost:3000/api/users
+Content-Type: application/json
+
+# {
+#   "email": "simonhetu@gmail.com",
+#   "name": "Simon",
+#   "pseudo": "Madzymon",
+#   "password": "Pass123$"
+# }
+
+# {
+#   "email": "nichetu@gmail.com",
+#   "name": "Nicholas",
+#   "pseudo": "NicktheSlickBrick",
+#   "password": "amoooza"
+# }
+
+# {
+#   "email": "manimano@gmail.com",
+#   "name": "Mano",
+#   "pseudo": "Mananinou",
+#   "password": "Kahoona"
+# }
+
+{
+  "email": "lonimano@gmail.com",
+  "name": "asd",
+  "pseudo": "Mandsadsad",
+  "password": "asdasdKahoona"
+}
+
+### Create User - Error 1: champ manquant (x4)
+POST http://localhost:3000/api/users
+Content-Type: application/json
+
+{
+  "email": "lonimano@gmail.com",
+  "name": "asd",
+  "pseudo": "Mandsadsad",
+  "password": ""
+}
+
+### Create User - Error 2: email existe 
+POST http://localhost:3000/api/users
+Content-Type: application/json
+
+{
+  "email": "lonimano@gmail.com",
+  "name": "asd",
+  "pseudo": "Mandsadsad",
+  "password": "asdasdKahoona"
+}
+
+### Create User - Error 3: pseudo existe 
+POST http://localhost:3000/api/users
+Content-Type: application/json
+
+{
+  "email": "looonimano@gmail.com",
+  "name": "asd",
+  "pseudo": "Mandsadsad",
+  "password": "asdasdKahoona"
+}
+
+
+POST http://localhost:3000/api/users
+Content-Type: application/json
+
+{
+  "email": "sdsdfsdf",
+  "name": "asasdasd",
+  "pseudo": "",
+  "password": "Kahoona"
+}
+
+### GET User by ID - Réussit
+GET http://localhost:3000/api/users/2
+Accept: application/json
+
+
+// =========================================================
+// ----- LOGIN AUTH -----
+// =========================================================
+
+### Login - Valide
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "simonhetu@gmail.com",
+  "password": "Pass123$"
+}
+
+### Login - Error 1: champ manquant (email)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "",
+  "password": "gugugagga"
+}
+### Login - Error 2: email inconnu
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "simonxxxxhetu@gmail.com",
+  "password": "Pass123$"
+}
+
+### Login Error 3: Mot de passe incorrect 
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "simonhetu@gmail.com",
+  "password": "gugugagga"
+}
+
+
+
