@@ -20,8 +20,17 @@ npx prisma generate
 npx ts-node src/scripts/importCrimes.ts
 
 
-## Import PDQ data(csv) ou insertion des données dans Néon
+## Import PDQ data(csv) et/ou insertion des données dans Néon
 npx ts-node src/scripts/importPdq.ts
 ## Tsx nouveau systeme plus rapide sans type check
 npx tsx src/scripts/importPdq.ts
 
+
+
+=====================================================================
+# Neon SQL editor
+=====================================================================
+
+
+## Pour retirer les données de la table PDQ et les incidents reliés
+TRUNCATE TABLE "Pdq" RESTART IDENTITY CASCADE;

@@ -163,8 +163,8 @@ async function importIncidents() {
             console.log("Aucun enregistrement supplémentaire, fin de l'import.")
             break;
         }
-
-        const MAX_IMPORT = 15000;
+        // ICI POUR CHANGER LE NOMBRE D'INCIDENT
+        const MAX_IMPORT = 30000;
         for (const record of result.records) {
             try {
                 const data = mapRecordToIncident(record);
