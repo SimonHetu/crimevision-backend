@@ -14,6 +14,13 @@ enum TimePeriod {
   soir
 }
 
+enum Role {
+  USER
+  ADMIN
+  MODERATOR
+}
+
+
 model Pdq {
   id              Int        @id
   name            String     @default("")
@@ -27,6 +34,10 @@ model Pdq {
 
 model Incident {
   id              Int       @id @default(autoincrement())
+  source          String
+  sourceId        Int
+
+  @@unique([source, sourceId], name: "source_sourceId")
   category        String
   date            DateTime
   timePeriod      TimePeriod
@@ -42,11 +53,23 @@ model Incident {
   pdq             Pdq       @relation(fields: [pdqId], references: [id]) 
 }
 
+/// Pour le suivi des incréments d'import
+model ImportCursor {
+  source        String   @id
+  lastDate      DateTime?
+  lastSourceId  Int?
+  lastRunAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
 model User {
   id              Int       @id @default(autoincrement())
   email           String    @unique
   name            String
   pseudo          String    @unique
   hashedPassword  String
+  role            Role      @default(USER)
   createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now()) @updatedAt
+
 }

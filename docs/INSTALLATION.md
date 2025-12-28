@@ -113,7 +113,6 @@ npm install --save-dev @types/jsonwebtoken
 
 
 =====================================================================
-
 ## 🌐 Frontend
 
 ### npm
@@ -126,3 +125,26 @@ Command:
 npm init -y
 
 ## 🗄 Database
+
+
+
+
+=====================================================================
+# Déinstallation des dépendances du projet
+=====================================================================
+git status;
+Remove-Item -Recurse -Force node_modules -ErrorAction SilentlyContinue;
+Remove-Item -Force package-lock.json -ErrorAction SilentlyContinue;
+if (Test-Path ".\backend") {
+  Remove-Item -Recurse -Force .\backend\node_modules -ErrorAction SilentlyContinue;
+  Remove-Item -Force .\backend\package-lock.json -ErrorAction SilentlyContinue;
+}
+$buildFolders = @("dist","build",".next",".turbo",".vite",".cache","coverage","out");
+foreach ($f in $buildFolders) {
+  if (Test-Path ".\$f") { Remove-Item -Recurse -Force ".\$f" }
+  if (Test-Path ".\backend\$f") { Remove-Item -Recurse -Force ".\backend\$f" }
+}
+if (Test-Path ".\generated") {
+  Remove-Item -Recurse -Force .\generated
+}
+npm cache clean --force

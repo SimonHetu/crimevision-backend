@@ -11,6 +11,9 @@ et Applique la migration à la base de donnée Neon
 npx prisma migrate dev --name init
 npx prisma generate 
 
+## Mise à jour de la DB
+npx prisma migrate dev --name init
+
 
 =====================================================================
 # IMPORT and INSERT

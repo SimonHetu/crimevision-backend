@@ -1,29 +1,21 @@
 import type { Request, Response, NextFunction } from "express";
 import prisma from "../prisma";
-import "dotenv/config";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-
-const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-me";
+import { signAccessToken } from "../utils/jwt";
 
 // =========================================================
 // POST /api/auth/login
 // =========================================================
-export async function login(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
-    // Affichage
-    console.log("▶ /api/auth/login called with body:", req.body);
+export async function login(req: Request, res: Response, next: NextFunction) {
+  // Affichage
+  console.log("▶ /api/auth/login called with body:", req.body);
+
   try {
-
-
     const { email, password } = req.body;
 
     // Validation champs requis
     if (!email || !password) {
-      console.log((`😵 Connexion échouée pour: ${email} 🤔`))
+      console.log(`😵 Connexion échouée pour: ${email ?? "(no email)"} 🤔`);
       return res.status(400).json({
         success: false,
         message: "Champs requis: email, password",
@@ -35,7 +27,7 @@ export async function login(
 
     // Validation que le email existe
     if (!user) {
-      console.log((`😵 Connexion échouée pour: ${email} 🤔`))
+      console.log(`😵 Connexion échouée pour: ${email} 🤔`);
       return res.status(401).json({
         success: false,
         message: "Identifiants invalides",
@@ -45,30 +37,32 @@ export async function login(
     // Comparaison du mot de passe
     const passwordOk = await bcrypt.compare(password, user.hashedPassword);
     if (!passwordOk) {
-      console.log((`😵 Connexion échouée pour: ${email} 🤔`))
+      console.log(`😵 Connexion échouée pour: ${email} 🤔`);
       return res.status(401).json({
         success: false,
-        message: "Mot de passe invalide",
+        message: "Identifiants invalides",
       });
     }
 
-    // Générer un token JWT
-    const token = jwt.sign(
-      { userId: user.id },
-      JWT_SECRET,
-      { expiresIn: "1h" }
-    );
+    // Générer un token JWT (via utils/jwt.ts)
+   const accessToken = signAccessToken({
+      sub: String(user.id),
+      email: user.email,
+      role: (user as any).role,
+    });
 
+
+    // Ne jamais renvoyer le hashedPassword
     const { hashedPassword, ...safeUser } = user;
 
-    console.log((`🗝 ✨ Connection réussit pour ${email} ✨`));
-    res.json({
+    console.log(`🗝 ✨ Connection réussie pour ${email} ✨`);
+    return res.json({
       success: true,
-      token,
+      accessToken,
       user: safeUser,
-      message: "Connexion Réussi ⚙✔"
+      message: "Connexion Réussi ⚙✔",
     });
   } catch (err) {
-    next(err);
+    return next(err);
   }
 }

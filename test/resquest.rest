@@ -126,7 +126,7 @@ Content-Type: application/json
 }
 
 ### DELETE User by ID
-DELETE http://localhost:3000/api/users/1
+DELETE http://localhost:3000/api/users/13
 
 
 // =========================================================
@@ -167,6 +167,37 @@ Content-Type: application/json
   "email": "simonhetu@gmail.com",
   "password": "gugugagga"
 }
+
+// =========================================================
+// ----- JWT AUTH TESTS -----
+// =========================================================
+
+@baseUrl = http://localhost:3000
+
+### Login and store JWT (captures accessToken)
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "simonhetu@gmail.com",
+  "password": "Pass123$"
+}
+
+### Protected route WITHOUT token -> should be 401
+GET {{baseUrl}}/api/auth/me
+Accept: application/json
+
+### Protected route WITH token -> should be 200
+GET {{baseUrl}}/api/auth/me
+Accept: application/json
+Authorization: Bearer {{login.response.body.accessToken}}
+
+### Protected route WITH INVALID token -> should be 401
+GET {{baseUrl}}/api/auth/me
+Accept: application/json
+Authorization: Bearer this.is.not.a.valid.token
+
 
 
 

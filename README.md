@@ -28,7 +28,15 @@ npx prisma migrate dev
 npx tsx src/scripts/importPdq.ts
 
 ### Import des incidents criminels:
-npx ts-node src/scripts/importIncidents.ts
+#### import rapide 2-3 minutes
+npx tsx src/scripts/importIncidents.ts --max=1000
+#### import 10 minutes
+npx tsx src/scripts/importIncidents.ts --max=5000
+npx tsx src/scripts/importIncidents.ts --max=all
+npx tsx src/scripts/importIncidents.ts --help
+
+### Mise à jour des incidents criminels:
+npx tsx src/scripts/importLatestIncidents
 
 ### 6.Lancer le serveur
 npm run dev

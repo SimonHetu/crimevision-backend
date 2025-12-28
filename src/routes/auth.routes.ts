@@ -1,11 +1,13 @@
 import { Router } from "express";
 import { login } from "../controllers/auth.controller";
+import { requireAuth } from "../middleware/auth.middleware";
 
-
-// console.log("✅ auth.routes loaded");
 const router = Router();
 
-// POST /api/auth/login
 router.post("/login", login);
+
+router.get("/me", requireAuth, (req, res) => {
+  res.json({ ok: true, user: req.user });
+});
 
 export default router;

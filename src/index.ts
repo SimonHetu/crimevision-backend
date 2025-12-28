@@ -1,7 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-
+import "./types/express";
 import incidentsRouter from "./routes/incidents.routes";
 import pdqRouter from "./routes/pdq.routes";
 import usersRouter from "./routes/user.routes";
