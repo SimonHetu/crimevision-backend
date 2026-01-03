@@ -50,7 +50,14 @@ model Incident {
 
   // PDQ relation
   pdqId           Int
-  pdq             Pdq       @relation(fields: [pdqId], references: [id]) 
+  pdq             Pdq       @relation(fields: [pdqId], references: [id])
+
+  // Indexes
+  @@index([pdqId, date])
+  @@index([date])
+  @@index([category])
+  @@index([pdqId, category, date])
+
 }
 
 /// Pour le suivi des incréments d'import

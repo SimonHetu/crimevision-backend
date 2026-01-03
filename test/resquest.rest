@@ -7,7 +7,7 @@
 GET http://localhost:3000/api/incidents?timePeriod=jour&pdqId=30&limit=20
 Accept: application/json
 
-### GET by Id
+### GET avec Id
 GET http://localhost:3000/api/incidents/1
 
 
@@ -40,12 +40,12 @@ Accept: application/json
 POST http://localhost:3000/api/users
 Content-Type: application/json
 
-{
-  "email": "simonhetu@gmail.com",
-  "name": "Simon",
-  "pseudo": "Madzymon",
-  "password": "Pass123$"
-}
+# {
+#   "email": "simonhetu@gmail.com",
+#   "name": "Simon",
+#   "pseudo": "Simonzymon",
+#   "password": "Pass123$",
+# }
 
 # {
 #   "email": "nichetu@gmail.com",
@@ -67,6 +67,13 @@ Content-Type: application/json
 #   "pseudo": "Mandsadsad",
 #   "password": "asdasdKahoona"
 # }
+
+{
+  "email": "anto@gmail.com",
+  "name": "anto",
+  "pseudo": "anto3",
+  "password": "asdasdasd"
+}
 
 ### Create User - Error 1: champ manquant (x4)
 POST http://localhost:3000/api/users

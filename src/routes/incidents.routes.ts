@@ -4,7 +4,7 @@ import { getIncidentById, getIncidents } from "../controllers/incident.controlle
 
 const router = Router();
 
-router.get("/", requireAuth, getIncidents);
+router.get("/", getIncidents);
 router.get("/:id", getIncidentById);
 
 export default router;
