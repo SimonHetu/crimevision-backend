@@ -112,8 +112,8 @@ function mapRecordToIncident(record: CkanRecord): Prisma.IncidentCreateInput {
 }
 
 /**
- * Compare (date, sourceId) against cursor (lastDate, lastSourceId).
- * Returns true if record is strictly NEWER than cursor.
+ * Compare (date, sourceId) au curseur (lastDate, lastSourceId).
+ * Retourne true si record est seulement plus récent que curseur.
  */
 function isNewer(
   recordDate: Date,
@@ -121,14 +121,14 @@ function isNewer(
   lastDate: Date | null,
   lastSourceId: number | null
 ): boolean {
-  if (!lastDate) return true; // first run
+  if (!lastDate) return true; // Premiere utilisation
   const t = recordDate.getTime();
   const lt = lastDate.getTime();
 
   if (t > lt) return true;
   if (t < lt) return false;
 
-  // same date => use sourceId as tie-break
+  // utilise source id pour trancher lorsque la date est la meme
   const lsid = lastSourceId ?? -1;
   return recordSourceId > lsid;
 }
@@ -211,7 +211,7 @@ async function importLatest() {
 
         createdOrUpdated++;
 
-        // 4) update new watermark (max)
+        // 4) Mise à jour du marqueur
         if (!newMaxDate || recordDate.getTime() > newMaxDate.getTime()) {
           newMaxDate = recordDate;
           newMaxSourceId = record._id;
@@ -229,7 +229,7 @@ async function importLatest() {
     offset += PAGE_SIZE;
   }
 
-  // 5) save cursor only if we actually advanced
+  // 5) Sauvegarde du curseur si on avance
   if (createdOrUpdated > 0) {
     await prisma.importCursor.upsert({
       where: { source: SOURCE },

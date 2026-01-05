@@ -2,7 +2,6 @@ import type { Request, Response, NextFunction } from "express";
 import type { Prisma, TimePeriod } from "../../generated/prisma/client";
 import prisma from "../prisma";
 
-
 // =========================================================
 // GET /api/incidents
 // =========================================================
@@ -13,7 +12,7 @@ export async function getIncidents(
   next: NextFunction
 ) {
   try {
-    // Definition des paramètres de requête url
+    // Définition des paramètres de requête url
     // Example: /api/incidents?pdqId=30&timePeriod=jour
     const { timePeriod, pdqId, category, limit = "100" } = req.query as {
       timePeriod?: string;
@@ -22,7 +21,7 @@ export async function getIncidents(
       limit?: string;
     };
     // Validation des valeurs de timePeriod
-    // Doivent etre dans l'enum du schema sinon elles sont ignorées
+    // Doivent être dans l'enum du schema sinon elles sont ignorées
     const timePeriodValue: TimePeriod | undefined =
       timePeriod === "jour" || timePeriod === "nuit" || timePeriod === "soir"
         ? (timePeriod as TimePeriod)
@@ -34,7 +33,7 @@ export async function getIncidents(
     
     // Limite sécuritaire
     const rawLimit = Number(limit);
-    // Si invalid ou en bas de 1 assigne la valeur par default (100)
+    // Si invalid ou en bas de 1 assigne la valeur par défault (100)
     let limitValue = (!rawLimit || rawLimit < 1) ? 100 : rawLimit;
     // Maximum par requête
     limitValue = Math.min(limitValue, 100);
@@ -45,7 +44,7 @@ export async function getIncidents(
     if (pdqIdValue !== undefined) where.pdqId = pdqIdValue;
     if (categoryValue) where.category = categoryValue;
 
-    // Prisma génère la requête SQL avec les champ de where
+    // Prisma génère la requête SQL avec les champs de where
     const incidents = await prisma.incident.findMany({
       where,
       take: limitValue,

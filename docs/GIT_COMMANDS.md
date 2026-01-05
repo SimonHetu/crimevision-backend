@@ -50,15 +50,6 @@ PR to staging in Github
 ========================================================================
 PR to main in Github
 
-
-
-
-
-
-
-
-
-
 ## Update origin info, grab current main and 
 git fetch origin
 git checkout main           // Local main

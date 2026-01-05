@@ -22,12 +22,10 @@ app.use("/api/auth", authRouter);
 
 
 // =========================================================
-// Activation du serveur
+// Démarrage du serveur
 // =========================================================
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`⚡🧿🚔 CrimeVision API running on http://localhost:${PORT} 🚔🧿⚡`);
 });
-
-

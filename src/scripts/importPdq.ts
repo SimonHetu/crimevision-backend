@@ -19,12 +19,12 @@ async function downloadPDQ() {
         "https://donnees.montreal.ca/fr/dataset/91f66001-b461-4f63-aff4-cddc0fe30ffe/resource/c9f296dd-596e-48ed-9c76-37230b2c916d/download/pdq.csv";
     
     const folder = path.join(__dirname, "..", "..","data", "raw");
-
     fs.mkdirSync(folder, { recursive: true });
 
     const res = await fetch(url);
     if (!res.ok) throw new Error("Échec du téléchargement pdq.csv");
 
+    // Binary data buffer et écriture du fichier
     const buffer = await res.arrayBuffer();
     fs.writeFileSync(path.join(folder, "pdq.csv"), Buffer.from(buffer));
 
@@ -41,13 +41,12 @@ function parseCsvLine(line: string): string[] {
 }
 
 async function importPdqFromCsv() {
-  neonConfig.webSocketConstructor = ws;
 
+  neonConfig.webSocketConstructor = ws;
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
     throw new Error("DATABASE_URL is not set in .env");
   }
-
   const adapter = new PrismaNeon({ connectionString });
   const prisma = new PrismaClient({ adapter });
 
@@ -75,9 +74,8 @@ async function importPdqFromCsv() {
       const dir      = cols[4] ?? "";
       const munCode  = cols[5] ?? "";
       const descLieu = cols[6] ?? "";
-
-      const lat = Number(cols[7] ?? 0);
-      const lon = Number(cols[8] ?? 0);
+      const lat      = Number(cols[7] ?? 0);
+      const lon      = Number(cols[8] ?? 0);
 
       if (!descLieu) {
         console.warn("Ligne sans DESC_LIEU, ignorée:", line);

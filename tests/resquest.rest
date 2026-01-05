@@ -3,18 +3,18 @@
 // ----- INCIDENTS -----
 // =========================================================
 
-### List incidents (limit:20)
+### List incidents (limit:20) ✔
 GET http://localhost:3000/api/incidents?timePeriod=jour&pdqId=30&limit=20
 Accept: application/json
 
-### GET avec Id
+### GET avec Id ✔
 GET http://localhost:3000/api/incidents/1
 
 
-### Invalid ID (NaN)
+### Invalid ID (NaN) ❌
 GET http://localhost:3000/api/incidents/abc
 
-### Invalid ID (inexistant)
+### Invalid ID (inexistant) ❌
 GET http://localhost:3000/api/incidents/99999999
 
 
@@ -22,11 +22,11 @@ GET http://localhost:3000/api/incidents/99999999
 // ----- PDQ -----
 // =========================================================
 
-### List all PDQs
+### List all PDQs ✔
 GET http://localhost:3000/api/pdq
 Accept: application/json
 
-### Get PDQ by ID
+### Get PDQ by ID ✔
 GET http://localhost:3000/api/pdq/30
 Accept: application/json
 
@@ -36,7 +36,7 @@ Accept: application/json
 // ----- USER -----
 // =========================================================
 
-### Create User - Success
+### Create User ✔
 POST http://localhost:3000/api/users
 Content-Type: application/json
 
@@ -75,7 +75,7 @@ Content-Type: application/json
   "password": "asdasdasd"
 }
 
-### Create User - Error 1: champ manquant (x4)
+### Create User - Error 1: champ manquant (x4) ❌
 POST http://localhost:3000/api/users
 Content-Type: application/json
 
@@ -86,7 +86,7 @@ Content-Type: application/json
   "password": ""
 }
 
-### Create User - Error 2: email existe 
+### Create User - Error 2: email existe ❌
 POST http://localhost:3000/api/users
 Content-Type: application/json
 
@@ -97,7 +97,7 @@ Content-Type: application/json
   "password": "asdasdKahoona"
 }
 
-### Create User - Error 3: pseudo existe 
+### Create User - Error 3: pseudo existe ❌
 POST http://localhost:3000/api/users
 Content-Type: application/json
 
@@ -109,21 +109,21 @@ Content-Type: application/json
 }
 
 
-POST http://localhost:3000/api/users
-Content-Type: application/json
+# POST http://localhost:3000/api/users
+# Content-Type: application/json
 
-{
-  "email": "sdsdfsdf",
-  "name": "asasdasd",
-  "pseudo": "",
-  "password": "Kahoona"
-}
+# {
+#   "email": "sdsdfsdf",
+#   "name": "asasdasd",
+#   "pseudo": "",
+#   "password": "Kahoona"
+# }
 
-### GET User by ID - Réussit
+### GET User by ID - Réussit ✔
 GET http://localhost:3000/api/users/2
 Accept: application/json
 
-### PATCH User by ID
+### PATCH User by ID ✔
 PATCH http://localhost:3000/api/users/1
 Content-Type: application/json
 
@@ -132,7 +132,7 @@ Content-Type: application/json
   "pseudo": "Madzyymon"
 }
 
-### DELETE User by ID
+### DELETE User by ID ✔
 DELETE http://localhost:3000/api/users/13
 
 
@@ -140,7 +140,7 @@ DELETE http://localhost:3000/api/users/13
 // ----- LOGIN AUTH -----
 // =========================================================
 
-### Login - Valide
+### Login - Valide ✔
 POST http://localhost:3000/api/auth/login
 Content-Type: application/json
 
@@ -149,7 +149,7 @@ Content-Type: application/json
   "password": "Pass123$"
 }
 
-### Login - Error 1: champ manquant (email)
+### Login - Error 1: champ manquant (email) ❌
 POST http://localhost:3000/api/auth/login
 Content-Type: application/json
 
@@ -157,7 +157,7 @@ Content-Type: application/json
   "email": "",
   "password": "gugugagga"
 }
-### Login - Error 2: email inconnu
+### Login - Error 2: email inconnu ❌
 POST http://localhost:3000/api/auth/login
 Content-Type: application/json
 
@@ -166,7 +166,7 @@ Content-Type: application/json
   "password": "Pass123$"
 }
 
-### Login Error 3: Mot de passe incorrect 
+### Login Error 3: Mot de passe incorrect ❌
 POST http://localhost:3000/api/auth/login
 Content-Type: application/json
 
@@ -181,7 +181,7 @@ Content-Type: application/json
 
 @baseUrl = http://localhost:3000
 
-### Login and store JWT (captures accessToken)
+### Login and store JWT (captures accessToken) ✔
 # @name login
 POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
@@ -191,16 +191,16 @@ Content-Type: application/json
   "password": "Pass123$"
 }
 
-### Protected route WITHOUT token -> should be 401
+### Protected route WITHOUT token : should be 401 ❌
 GET {{baseUrl}}/api/auth/me
 Accept: application/json
 
-### Protected route WITH token -> should be 200
+### Protected route WITH token : should be 200 ✔
 GET {{baseUrl}}/api/auth/me
 Accept: application/json
 Authorization: Bearer {{login.response.body.accessToken}}
 
-### Protected route WITH INVALID token -> should be 401
+### Protected route WITH INVALID token -> should be 401 ❌
 GET {{baseUrl}}/api/auth/me
 Accept: application/json
 Authorization: Bearer this.is.not.a.valid.token

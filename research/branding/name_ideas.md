@@ -4,5 +4,3 @@
 Crime Vision / Vision Crime
 SafeSight
 Watchful City
-
-Sentryr

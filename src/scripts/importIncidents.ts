@@ -1,4 +1,3 @@
-// IMPORT:
 import "dotenv/config";
 import { PrismaClient, Prisma, $Enums  } from "../../generated/prisma/client";
 import { PrismaNeon } from "@prisma/adapter-neon";
@@ -218,7 +217,7 @@ async function importIncidents() {
 
         offset += PAGE_SIZE;
     }
-    // ✅ Initialisation du cursor APRÈS l'import initial
+    // Initialisation du cursor apres l'import initial
     const latest = await prisma.incident.findFirst({
       where: { source: SOURCE },
       orderBy: [{ date: "desc" }, { sourceId: "desc" }],

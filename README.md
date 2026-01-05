@@ -7,36 +7,35 @@ CrimeVision est une application cartographique interactive qui visualise les don
 ## Installation:
 
 ### 1.Clone
-git clone https://github.com/SimonHetu/Crime-Vision.git
+git clone https://github.com/SimonHetu/CrimeVision-Backend.git
 
-cd Crime-Vision/backend
+cd crimevision-backend
 
 ### 2.Installation des dépendances
 npm install
 
-### 3.Creation du .env
+### 3.Création du .env
 cp .env.example .env
 
-### Insérer les information .env de votre compte Neon personnel
+### 4.Insérer les information du fichier .env de votre compte Neon personnel
 DATABASE_URL="votre_url_neon_postgresql_ici"
 JWT_SECRET="votre_cle_secrete_pour_le_token"
 
-### Migration Prisma
+### 4.Migration Prisma
 npx prisma migrate dev
 
-### Import des postes de quartier(PDQ):
+### 5.Import des postes de quartier(PDQ):
 npx tsx src/scripts/importPdq.ts
 
-### Import des incidents criminels:
-#### Information sur la fonctionnalité d'import
-npx tsx src/scripts/importIncidents.ts --help
-
+### 6.Import des incidents criminels:
 #### import rapide 2-3 minutes
 npx tsx src/scripts/importIncidents.ts --max=1000
 #### import 10 minutes
 npx tsx src/scripts/importIncidents.ts --max=5000
-#### import 15h (335k entrées)
+#### import ~15h (335 000 entrées)
 npx tsx src/scripts/importIncidents.ts --max=all
+
+npx tsx src/scripts/importIncidents.ts --help
 
 
 ### Mise à jour des incidents criminels:
@@ -46,7 +45,23 @@ npx tsx src/scripts/importLatestIncidents
 npm run dev
 
 Si tout fonctionne:
-⚡🚔 CrimeVision API running on http://localhost:3000 🚔⚡
+⚡🧿🚔 CrimeVision API running on http://localhost:3000 🚔🧿⚡
 
 ### 7. Test:
 Le projet inclut un fichier request.rest compatible avec l’extension REST Client de VS Code.
+
+### Diagramme UML (Modélisation des données)
+
+- crimevision-backend/crimevision-schema.jpg
+- docs/UML/crimevision-schema.jpg
+
+#### Les liens de ressources utilisées
+crimevision-backend/data/SOURCES.md
+
+#### Architecture MVC
+
+Le projet utilise une architecture MVC :
+- Routes : définition des endpoints API
+- Controllers : logique métier et validation
+- Models : définitions des entités et types
+- Prisma : accès à la base de données Neon

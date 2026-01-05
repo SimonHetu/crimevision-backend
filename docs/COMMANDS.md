@@ -1,39 +1,38 @@
-=====================================================================
-# COMMANDES:
-=====================================================================
 
-# Génération de la base de donné à partir de schema.prisma
-1) Lit le schema.prisma créer le fichier de migration 
-et Applique la migration à la base de donnée Neon
-2) Génère le client prisma (maintenant optionnel puisque tout est généré avec migrate dans Prisma 7)
+# COMMANDES - CrimeVision
 
-**Commande:**
+Ce document regroupe les principales commandes utilisées pour le développement, la gestion de la base de données et l’importation des données du backend.
+
+## Génération de la base de données à partir de schema.prisma
+1. Lit le fichier `schema.prisma`
+2. Crée les fichiers de migration
+3. Applique la migration à la base de données PostgreSQL (Neon)
+4. Génère le client Prisma (maintenant optionnel, car intégré à `migrate` depuis Prisma 7)
+
+### Commande
 npx prisma migrate dev --name init
+
 npx prisma generate 
 
-## Mise à jour de la DB
+#### Mise à jour de la base de données
 npx prisma migrate dev --name init
 
+---
 
-=====================================================================
-# IMPORT and INSERT
-=====================================================================
+## Imports et Insertions
 
-## Script d'import de donné du CKAN avec Prisma
+### Script d'import de données du CKAN avec Prisma
 npx ts-node src/scripts/importCrimes.ts
 
-
-## Import PDQ data(csv) et/ou insertion des données dans Néon
+### Import PDQ data(csv) et/ou insertion des données dans Néon
 npx ts-node src/scripts/importPdq.ts
-## Tsx nouveau systeme plus rapide sans type check
+
+### Tsx nouveau système plus rapide sans type check
 npx tsx src/scripts/importPdq.ts
 
+---
 
+## Neon SQL editor
 
-=====================================================================
-# Neon SQL editor
-=====================================================================
-
-
-## Pour retirer les données de la table PDQ et les incidents reliés
+### Pour retirer les données de la table PDQ et les incidents reliés
 TRUNCATE TABLE "Pdq" RESTART IDENTITY CASCADE;
