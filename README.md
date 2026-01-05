@@ -21,16 +21,16 @@ cp .env.example .env
 DATABASE_URL="votre_url_neon_postgresql_ici"
 JWT_SECRET="votre_cle_secrete_pour_le_token"
 
-### 4.Migration Prisma
+### 5.Migration Prisma
 npx prisma migrate dev
 
-### 5.Import des postes de quartier(PDQ):
+### 6.Import des postes de quartier(PDQ):
 npx tsx src/scripts/importPdq.ts
 
-### 6.Import des incidents criminels:
-#### import rapide 2-3 minutes
+### 7.Import des incidents criminels:
+#### import rapide ~2-3 minutes
 npx tsx src/scripts/importIncidents.ts --max=1000
-#### import 10 minutes
+#### import ~15 minutes
 npx tsx src/scripts/importIncidents.ts --max=5000
 #### import ~15h (335 000 entrées)
 npx tsx src/scripts/importIncidents.ts --max=all
@@ -38,17 +38,17 @@ npx tsx src/scripts/importIncidents.ts --max=all
 npx tsx src/scripts/importIncidents.ts --help
 
 
-### Mise à jour des incidents criminels:
-npx tsx src/scripts/importLatestIncidents
+### 8.Mise à jour des incidents criminels:
+npx tsx src/scripts/importLatestIncidents.ts
 
-### 6.Lancer le serveur
+### 9.Lancer le serveur
 npm run dev
 
 Si tout fonctionne:
 ⚡🧿🚔 CrimeVision API running on http://localhost:3000 🚔🧿⚡
 
-### 7. Test:
-Le projet inclut un fichier request.rest compatible avec l’extension REST Client de VS Code.
+### 10. Test:
+Le projet inclut un fichier tests/resquest.rest compatible avec l’extension REST Client de VS Code.
 
 ### Diagramme UML (Modélisation des données)
 
