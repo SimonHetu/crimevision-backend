@@ -6,3 +6,7 @@ Un contrôleur contrient la logique métier: il traite la requête, interagit av
 
 # Logique métier:
 La logique métier correspond à toutes les règles, traitement et décisions propres au fonctionnement de l'application. Elle inclut les filtre des crimes par quartier la validation des données, la transformation des réponses etc.
+
+
+
+

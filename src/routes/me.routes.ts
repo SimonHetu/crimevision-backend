@@ -77,7 +77,6 @@ router.patch("/home", async (req, res) => {
 
   const { homeLat, homeLng, homeRadiusM } = req.body;
 
-  // minimal validation
   if (
     (homeLat != null && !isFiniteNumber(homeLat)) ||
     (homeLng != null && !isFiniteNumber(homeLng)) ||
@@ -130,7 +129,7 @@ router.patch("/home", async (req, res) => {
 });
 
 // =======================================================
-// DELETE /api/me/home (AUTH) — optional but nice for CRUD
+// DELETE /api/me/home (AUTH)
 // =======================================================
 router.delete("/home", async (req, res) => {
   const clerkId = requireUserId(req, res);
@@ -153,8 +152,9 @@ router.delete("/home", async (req, res) => {
 
 // =======================================================
 // GET /api/me/incidents?mode=home|latest&limit=...&category=...&radiusM=...
-// - latest: PUBLIC
-// - home: AUTH
+// + latest supports years/months filters:
+//    years=2025,2026
+//    months=0,1,11   (0-11 like JS Date.getMonth())
 // =======================================================
 router.get("/incidents", async (req, res) => {
   const mode = String(req.query.mode ?? "home").trim().toLowerCase();
@@ -170,8 +170,52 @@ router.get("/incidents", async (req, res) => {
 
   // PUBLIC
   if (mode === "latest") {
+    // ---- NEW: parse years/months filters (optional)
+    const years = String(req.query.years ?? "")
+      .split(",")
+      .map((s) => Number(s.trim()))
+      .filter((n) => Number.isFinite(n));
+
+    const months = String(req.query.months ?? "")
+      .split(",")
+      .map((s) => Number(s.trim()))
+      .filter((n) => Number.isFinite(n) && n >= 0 && n <= 11);
+
+    // If user selected some years/months, compute an inclusive date range.
+    // We’ll use the earliest selected (year,month) as start, and the month AFTER
+    // the latest selected (year,month) as end (exclusive).
+    let dateFilter: { gte?: Date; lt?: Date } | null = null;
+
+    if (years.length > 0 && months.length > 0) {
+      const pairs: Array<{ y: number; m: number }> = [];
+      for (const y of years) for (const m of months) pairs.push({ y, m });
+
+      pairs.sort((a, b) => (a.y - b.y) || (a.m - b.m));
+
+      const first = pairs[0];
+      const last = pairs[pairs.length - 1];
+
+      if (first && last) {
+        const start = new Date(Date.UTC(first.y, first.m, 1, 0, 0, 0));
+        const end = new Date(Date.UTC(last.y, last.m + 1, 1, 0, 0, 0));
+        dateFilter = { gte: start, lt: end };
+      }
+
+
+    } else if (years.length > 0 && months.length === 0) {
+      // year-only: from Jan 1 of minYear to Jan 1 of (maxYear+1)
+      const minY = Math.min(...years);
+      const maxY = Math.max(...years);
+      const start = new Date(Date.UTC(minY, 0, 1, 0, 0, 0));
+      const end = new Date(Date.UTC(maxY + 1, 0, 1, 0, 0, 0));
+      dateFilter = { gte: start, lt: end };
+    }
+
     const items = await prisma.incident.findMany({
-      where: { ...(category ? { category } : {}) },
+      where: {
+        ...(category ? { category } : {}),
+        ...(dateFilter ? { date: dateFilter } : {}),
+      },
       orderBy: { date: "desc" },
       take: limit,
       select: {
@@ -188,7 +232,7 @@ router.get("/incidents", async (req, res) => {
     return res.json({ success: true, mode, items });
   }
 
-  
+  // AUTH (home mode)
   const clerkId = requireUserId(req, res);
   if (!clerkId) return;
 
@@ -256,4 +300,5 @@ router.get("/incidents", async (req, res) => {
     items,
   });
 });
+
 export default router;
