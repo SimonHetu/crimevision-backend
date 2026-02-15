@@ -69,6 +69,25 @@ function toNumberOrNull(value?: string): number | null {
   return Number.isNaN(n) ? null : n;
 }
 
+function parseCkanDateToSafeUtc(dateStr?: string) {
+  if (!dateStr) return new Date(0);
+
+  const parts = dateStr.slice(0, 10).split("-");
+  if (parts.length !== 3) return new Date(0);
+
+  const y = Number(parts[0]);
+  const m = Number(parts[1]);
+  const d = Number(parts[2]);
+
+  if (!Number.isFinite(y) || !Number.isFinite(m) || !Number.isFinite(d)) {
+    return new Date(0);
+  }
+
+  // midi UTC → évite le shift de timezone
+  return new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+}
+
+
 function mapRecordToIncident(record: CkanRecord): Prisma.IncidentCreateInput {
   let timePeriod: TimePeriodEnum = $Enums.TimePeriod.jour;
   if (record.QUART === "soir") timePeriod = $Enums.TimePeriod.soir;
@@ -89,7 +108,8 @@ function mapRecordToIncident(record: CkanRecord): Prisma.IncidentCreateInput {
     source: SOURCE,
     sourceId: record._id,
     category: record.CATEGORIE ?? "Inconnu",
-    date: record.DATE ? new Date(record.DATE) : new Date(0),
+    date: parseCkanDateToSafeUtc(record.DATE),
+
     timePeriod,
     x,
     y,
@@ -191,7 +211,7 @@ async function importLatest() {
             console.error("Record sans DATE, skip _id=", record._id);
             continue;
             }
-            const recordDate = new Date(record.DATE);
+            const recordDate = parseCkanDateToSafeUtc(record.DATE);
 
 
         // 2) stop condition: dès qu’on atteint du “pas plus récent”

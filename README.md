@@ -4,7 +4,7 @@
 
 CrimeVision est une application cartographique interactive qui visualise les données criminelles de Montréal afin d’aider les utilisateurs à comprendre les tendances, améliorer leur vigilance et prendre des décisions éclairées.
 
-## Installation:
+## Installation
 
 ### 1.Clone
 git clone https://github.com/SimonHetu/CrimeVision-Backend.git
@@ -48,7 +48,7 @@ Si tout fonctionne:
 ⚡🧿🚔 CrimeVision API running on http://localhost:3000 🚔🧿⚡
 
 ### 10. Test:
-Le projet inclut un fichier tests/resquest.rest compatible avec l’extension REST Client de VS Code.
+Le projet inclut un fichier tests/request.rest compatible avec l’extension REST Client de VS Code.
 
 ### Diagramme UML (Modélisation des données)
 

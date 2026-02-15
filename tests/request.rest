@@ -1,3 +1,35 @@
+// =========================================================
+// ----- ME (Clerk protected)
+// =========================================================
+
+@TOKEN = eyJhbGciOiJSUzI1NiIsImNhdCI6ImNsX0I3ZDRQRDExMUFBQSIsImtpZCI6Imluc18zOURwYU4xbjlTVDZ0M0pFclBhRmoxUW9IRDciLCJ0eXAiOiJKV1QifQ.eyJhenAiOiJodHRwOi8vbG9jYWxob3N0OjUxNzMiLCJleHAiOjE3NzAyNDYwMzUsImZ2YSI6WzUsLTFdLCJpYXQiOjE3NzAyNDU5NzUsImlzcyI6Imh0dHBzOi8vY3J1Y2lhbC1jb3lvdGUtMjcuY2xlcmsuYWNjb3VudHMuZGV2IiwibmJmIjoxNzcwMjQ1OTY1LCJzaWQiOiJzZXNzXzM5RHp2aVlOaGNGMUJwN2FLR1pac2tKN3E0aiIsInN0cyI6ImFjdGl2ZSIsInN1YiI6InVzZXJfMzlEeDJrVm9GRE5tb3lSVHJRT3Q2dERlZnpTIiwidiI6Mn0.DmoCLWbYLiCcABPYoKLUWLkJqWpQnJufRZAGmQp2Cx6xyeFbL0XChw0DnskO1JJ7x9x5LPA_KZLPPlGwDv3yBXqUTlkPCdmv_J5aQ0S4uuAC4jBurWY8EWCzNRG6x5WapOsuv0SOoiVd41b5R4j89nY47Y68zGIejsb1gNBw7wqXRn9zOf1LzVj561mSzhGX35_sCaeMoGUJluCBGEZv3pQm71Kce-cWgRg9bxg-UMT8TSCd1oyeMT8h4AM2nFo7jnPLylmh2uP_LkiMKiomcyewEX8AAG9vrEFg36uD_OOkR0bN0zKh7DWb7WbxCxcZB5UcIDTaTOAa59LRD6Rx3Q
+
+
+###  not logged ❌
+GET http://localhost:3000/api/me
+
+
+### get current user (auto create in DB) ✔
+GET http://localhost:3000/api/me
+Authorization: Bearer {{TOKEN}}
+
+
+### update home radius ✔
+PATCH http://localhost:3000/api/me/home
+Content-Type: application/json
+Authorization: Bearer {{TOKEN}}
+
+{
+  "homeLat": 45.5017,
+  "homeLng": -73.5673,
+  "homeRadiusM": 500
+}
+
+
+### verify profile updated ✔
+GET http://localhost:3000/api/me
+Authorization: Bearer {{TOKEN}}
+
 
 // =========================================================
 // ----- INCIDENTS -----
@@ -29,182 +61,6 @@ Accept: application/json
 ### Get PDQ by ID ✔
 GET http://localhost:3000/api/pdq/30
 Accept: application/json
-
-
-
-// =========================================================
-// ----- USER -----
-// =========================================================
-
-### Create User ✔
-POST http://localhost:3000/api/users
-Content-Type: application/json
-
-# {
-#   "email": "simonhetu@gmail.com",
-#   "name": "Simon",
-#   "pseudo": "Simonzymon",
-#   "password": "Pass123$",
-# }
-
-# {
-#   "email": "nichetu@gmail.com",
-#   "name": "Nicholas",
-#   "pseudo": "NicktheSlickBrick",
-#   "password": "amoooza"
-# }
-
-# {
-#   "email": "manimano@gmail.com",
-#   "name": "Mano",
-#   "pseudo": "Mananinou",
-#   "password": "Kahoona"
-# }
-
-# {
-#   "email": "lonimano@gmail.com",
-#   "name": "asd",
-#   "pseudo": "Mandsadsad",
-#   "password": "asdasdKahoona"
-# }
-
-{
-  "email": "anto@gmail.com",
-  "name": "anto",
-  "pseudo": "anto3",
-  "password": "asdasdasd"
-}
-
-### Create User - Error 1: champ manquant (x4) ❌
-POST http://localhost:3000/api/users
-Content-Type: application/json
-
-{
-  "email": "lonimano@gmail.com",
-  "name": "asd",
-  "pseudo": "Mandsadsad",
-  "password": ""
-}
-
-### Create User - Error 2: email existe ❌
-POST http://localhost:3000/api/users
-Content-Type: application/json
-
-{
-  "email": "lonimano@gmail.com",
-  "name": "asd",
-  "pseudo": "Mandsadsad",
-  "password": "asdasdKahoona"
-}
-
-### Create User - Error 3: pseudo existe ❌
-POST http://localhost:3000/api/users
-Content-Type: application/json
-
-{
-  "email": "looonimano@gmail.com",
-  "name": "asd",
-  "pseudo": "Mandsadsad",
-  "password": "asdasdKahoona"
-}
-
-
-# POST http://localhost:3000/api/users
-# Content-Type: application/json
-
-# {
-#   "email": "sdsdfsdf",
-#   "name": "asasdasd",
-#   "pseudo": "",
-#   "password": "Kahoona"
-# }
-
-### GET User by ID - Réussit ✔
-GET http://localhost:3000/api/users/2
-Accept: application/json
-
-### PATCH User by ID ✔
-PATCH http://localhost:3000/api/users/1
-Content-Type: application/json
-
-{
-  "name": "Siimon",
-  "pseudo": "Madzyymon"
-}
-
-### DELETE User by ID ✔
-DELETE http://localhost:3000/api/users/13
-
-
-// =========================================================
-// ----- LOGIN AUTH -----
-// =========================================================
-
-### Login - Valide ✔
-POST http://localhost:3000/api/auth/login
-Content-Type: application/json
-
-{
-  "email": "simonhetu@gmail.com",
-  "password": "Pass123$"
-}
-
-### Login - Error 1: champ manquant (email) ❌
-POST http://localhost:3000/api/auth/login
-Content-Type: application/json
-
-{
-  "email": "",
-  "password": "gugugagga"
-}
-### Login - Error 2: email inconnu ❌
-POST http://localhost:3000/api/auth/login
-Content-Type: application/json
-
-{
-  "email": "simonxxxxhetu@gmail.com",
-  "password": "Pass123$"
-}
-
-### Login Error 3: Mot de passe incorrect ❌
-POST http://localhost:3000/api/auth/login
-Content-Type: application/json
-
-{
-  "email": "simonhetu@gmail.com",
-  "password": "gugugagga"
-}
-
-// =========================================================
-// ----- JWT AUTH TESTS -----
-// =========================================================
-
-@baseUrl = http://localhost:3000
-
-### Login and store JWT (captures accessToken) ✔
-# @name login
-POST {{baseUrl}}/api/auth/login
-Content-Type: application/json
-
-{
-  "email": "simonhetu@gmail.com",
-  "password": "Pass123$"
-}
-
-### Protected route WITHOUT token : should be 401 ❌
-GET {{baseUrl}}/api/auth/me
-Accept: application/json
-
-### Protected route WITH token : should be 200 ✔
-GET {{baseUrl}}/api/auth/me
-Accept: application/json
-Authorization: Bearer {{login.response.body.accessToken}}
-
-### Protected route WITH INVALID token -> should be 401 ❌
-GET {{baseUrl}}/api/auth/me
-Accept: application/json
-Authorization: Bearer this.is.not.a.valid.token
-
 
 
 

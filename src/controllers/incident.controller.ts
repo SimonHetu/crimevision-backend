@@ -14,7 +14,7 @@ export async function getIncidents(
   try {
     // Définition des paramètres de requête url
     // Example: /api/incidents?pdqId=30&timePeriod=jour
-    const { timePeriod, pdqId, category, limit = "100" } = req.query as {
+    const { timePeriod, pdqId, category, limit = "5000" } = req.query as {
       timePeriod?: string;
       pdqId?: string;
       category?: string;
@@ -34,9 +34,9 @@ export async function getIncidents(
     // Limite sécuritaire
     const rawLimit = Number(limit);
     // Si invalid ou en bas de 1 assigne la valeur par défault (100)
-    let limitValue = (!rawLimit || rawLimit < 1) ? 100 : rawLimit;
+    let limitValue = (!rawLimit || rawLimit < 1) ? 5000 : rawLimit;
     // Maximum par requête
-    limitValue = Math.min(limitValue, 100);
+    limitValue = Math.min(limitValue, 20000);
 
     // Construction de l'objet where basé sur le schema prisma
     const where: Prisma.IncidentWhereInput = {};

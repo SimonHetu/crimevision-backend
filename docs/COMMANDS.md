@@ -21,8 +21,8 @@ npx prisma migrate dev --name init
 
 ## Imports et Insertions
 
-### Script d'import de données du CKAN avec Prisma
-npx ts-node src/scripts/importCrimes.ts
+### Script d'import de données du CKAN avec Prisma ◀⏪
+npx tsx src/scripts/importIncidents.ts --max=1000
 
 ### Import PDQ data(csv) et/ou insertion des données dans Néon
 npx ts-node src/scripts/importPdq.ts
@@ -30,6 +30,8 @@ npx ts-node src/scripts/importPdq.ts
 ### Tsx nouveau système plus rapide sans type check
 npx tsx src/scripts/importPdq.ts
 
+### Import Recent ⏩▶
+npx tsx src/scripts/importLatestIncidents.ts
 ---
 
 ## Neon SQL editor

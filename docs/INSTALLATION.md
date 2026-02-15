@@ -111,6 +111,15 @@ npm install --save-dev @types/bcrypt
 npm install jsonwebtoken
 npm install --save-dev @types/jsonwebtoken
 
+# CORS
+npm install cors
+
+# Clerk
+npm i @clerk/express
+
+====================================================================
+## Uninstalls 
+npm uninstall bcrypt jsonwebtoken
 
 =====================================================================
 ## 🌐 Frontend

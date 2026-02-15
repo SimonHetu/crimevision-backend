@@ -60,7 +60,7 @@ model Incident {
 
 }
 
-/// Pour le suivi des incréments d'import
+// Pour le suivi des incréments d'import
 model ImportCursor {
   source        String   @id
   lastDate      DateTime?
@@ -69,14 +69,54 @@ model ImportCursor {
   updatedAt     DateTime @updatedAt
 }
 
-model User {
-  id              Int       @id @default(autoincrement())
-  email           String    @unique
-  name            String
-  pseudo          String    @unique
-  hashedPassword  String
-  role            Role      @default(USER)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @default(now()) @updatedAt
-
+// Pour le suivi des incréments d'import déjà importer en reculant
+model ImportBootstrapState {
+  id          String   @id @default("spvm_incidents_bootstrap")
+  source      String   @unique
+  nextOffset  Int      @default(0)
+  updatedAt   DateTime @updatedAt
 }
+
+
+model User {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  clerkId   String    @unique
+  email     String?
+
+  role      Role      @default(USER)
+
+  profile   UserProfile?
+  locations SavedLocation[]
+}
+
+
+model UserProfile {
+  id            Int      @id @default(autoincrement())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  userId        Int      @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  homeLat       Float?
+  homeLng       Float?
+  homeRadiusM   Int?
+}
+
+model SavedLocation {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  label       String
+  lat         Float
+  lng         Float
+  radiusM     Int
+}
+
