@@ -36,7 +36,7 @@ export async function getIncidents(
     // Si invalid ou en bas de 1 assigne la valeur par défault (100)
     let limitValue = (!rawLimit || rawLimit < 1) ? 5000 : rawLimit;
     // Maximum par requête
-    limitValue = Math.min(limitValue, 20000);
+    limitValue = Math.min(limitValue, 30000);
 
     // Construction de l'objet where basé sur le schema prisma
     const where: Prisma.IncidentWhereInput = {};

@@ -12,7 +12,6 @@ export async function requireClerkAuth(req: AuthedRequest, res: Response, next: 
 
     const token = auth.slice("Bearer ".length);
 
-    // You must have CLERK_SECRET_KEY in backend .env
     const payload = await verifyToken(token, {
       secretKey: process.env.CLERK_SECRET_KEY!,
     });

@@ -10,8 +10,6 @@ import userRoutes from "./routes/userRoutes"
 import locationsRoutes from "./routes/locations";
 
 
-
-
 // =========================================================
 // EXPRESS
 // =========================================================
@@ -51,7 +49,4 @@ app.use("/api/locations", locationsRoutes);
 // Démarrage du serveur
 // =========================================================
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`⚡🧿🚔 CrimeVision API running on http://localhost:${PORT} 🚔🧿⚡`);
-});
+export default app;

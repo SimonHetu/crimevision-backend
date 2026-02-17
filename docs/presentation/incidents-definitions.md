@@ -1,6 +1,6 @@
 # 📘 Définitions des catégories d’infractions (Québec / Code criminel du Canada)
 
-## 🔴 Infractions entraînant la mort
+## 💀 Infractions entraînant la mort
 
 Infractions criminelles ayant causé le décès d’une personne, incluant notamment :
 
@@ -13,11 +13,9 @@ Ces infractions sont définies aux articles 222 à 240 du Code criminel du Canad
 
 ---
 
-## 🏠 Introduction (Introduction par effraction)
+## 👤 Introduction (Introduction par effraction)
 
 L’introduction par effraction consiste à entrer sans autorisation dans un lieu (résidence, commerce, bâtiment) après avoir forcé ou contourné un accès, dans l’intention d’y commettre un acte criminel.
-
-Définie à l’article 348 du Code criminel du Canada.
 
 Peut viser :
 - Résidences privées
@@ -25,24 +23,25 @@ Peut viser :
 - Bâtiments industriels
 - Garages ou dépendances
 
+Définie à l’article 348 du Code criminel du Canada.
+
 ---
 
-## ⚠️ Méfait
+## 🔨 Méfait
 
 Le méfait consiste à endommager, détruire, rendre dangereux ou empêcher l’usage légitime d’un bien appartenant à autrui.
 
-Défini à l’article 430 du Code criminel du Canada.
-
-Exemples :
 - Vandalisme
 - Graffiti
 - Bris de vitres
 - Sabotage
 - Détérioration de biens publics
 
+Défini à l’article 430 du Code criminel du Canada.
+
 ---
 
-## 🚗 Vol dans / sur véhicule à moteur
+## 🚘 Vol dans / sur véhicule à moteur
 
 Il s’agit du vol d’objets contenus dans un véhicule ou fixés sur celui-ci, sans voler le véhicule lui-même.
 
@@ -71,11 +70,9 @@ Inclut :
 
 ---
 
-## 💎 Vol qualifié
+## 📱 Vol qualifié
 
 Le vol qualifié est un vol commis avec violence ou menace de violence envers une personne.
-
-Défini à l’article 343 du Code criminel du Canada.
 
 Inclut notamment :
 - Vol à main armée
@@ -84,3 +81,5 @@ Inclut notamment :
 - Vol avec intimidation physique
 
 Il s’agit d’une infraction plus grave que le vol simple en raison de la violence exercée.
+
+Défini à l’article 343 du Code criminel du Canada.

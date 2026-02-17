@@ -1,13 +1,13 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client" // Librairie TypeScript utilisée par le backend pour parler à la DB
+  output   = "../generated/prisma" // Emplacement du client prisma généré
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "postgresql" // La base de donnée utilisée
 }
 
-
+// Enums: Liste prédéfinie de valeur autorisées pour un champ
 enum TimePeriod {
   jour
   nuit
@@ -29,34 +29,36 @@ model Pdq {
   latitude        Float      @default(0)
   longitude       Float      @default(0)
 
-  incidents Incident[]         
+  incidents Incident[] // Relation qui definit que 1 PDQ peut etre relier a plusieurs incidents        
 }
 
 model Incident {
   id              Int       @id @default(autoincrement())
-  source          String
-  sourceId        Int
+  source          String  // Nom du fournisseur des données
+  sourceId        Int     // Identifiant unique de la source externe
 
-  @@unique([source, sourceId], name: "source_sourceId")
-  category        String
+  @@unique([source, sourceId], name: "source_sourceId") 
+  // La combinaison source et sourceId doit etre unique, sourceId peut exister plusieurs fois mais pas pour la meme source
+
+  category        String    // Document de définition des incidents
   date            DateTime
-  timePeriod      TimePeriod
+  timePeriod      TimePeriod // Choix enum
 
   // Geometrie 
   x               Float?
   y               Float?
-  longitude       Float?
+  longitude       Float? // Explication dans le document de présentation
   latitude        Float?
 
-  // PDQ relation
+  // PDQ Id et relation (1 à N)
   pdqId           Int
   pdq             Pdq       @relation(fields: [pdqId], references: [id])
 
   // Indexes
-  @@index([pdqId, date])
-  @@index([date])
+  @@index([pdqId, date]) // Pour chercher par PDQ + date
+  @@index([date]) // Par date: pour incident recent, dernier 7 jours, dernier 30 jours
   @@index([category])
-  @@index([pdqId, category, date])
+  @@index([pdqId, category, date]) // combo de recherche pdq, categorie et data
 
 }
 
@@ -91,7 +93,6 @@ model User {
   profile   UserProfile?
   locations SavedLocation[]
 }
-
 
 model UserProfile {
   id            Int      @id @default(autoincrement())

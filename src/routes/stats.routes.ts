@@ -1,4 +1,3 @@
-// src/routes/stats.routes.ts
 import { Router } from "express";
 import { prisma } from "../prisma";
 
