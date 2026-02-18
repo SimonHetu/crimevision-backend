@@ -25,19 +25,24 @@ const allowedOrigins = [
   "https://crimevision-frontend-a3wev43wi-simons-projects-55545dbc.vercel.app",
 ];
 
-app.use(
-  cors({
-    origin: (origin, cb) => {
-      // allow requests like curl/postman (no Origin header)
-      if (!origin) return cb(null, true);
-      if (allowedOrigins.includes(origin)) return cb(null, true);
-      return cb(new Error(`CORS blocked for origin: ${origin}`));
-    },
-    credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"],
-    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-  })
-);
+const corsOptions: cors.CorsOptions = {
+  origin: (origin, cb) => {
+    if (!origin) return cb(null, true);
+
+    if (allowedOrigins.includes(origin)) return cb(null, true);
+
+    // allow all Vercel preview deployments
+    if (origin.endsWith(".vercel.app")) return cb(null, true);
+
+    return cb(new Error(`CORS blocked for origin: ${origin}`));
+  },
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"],
+  methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+};
+
+app.use(cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
 
 // =========================================================
 // CLERK
