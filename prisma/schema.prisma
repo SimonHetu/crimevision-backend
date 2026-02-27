@@ -5,6 +5,8 @@ generator client {
 
 datasource db {
   provider = "postgresql" // La base de donnée utilisée
+  
+  
 }
 
 // Enums: Liste prédéfinie de valeur autorisées pour un champ
@@ -85,8 +87,9 @@ model User {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
-  clerkId   String    @unique
-  email     String?
+  clerkId      String?    @unique
+  email        String?    @unique
+  passwordHash String?
 
   role      Role      @default(USER)
 
@@ -107,6 +110,8 @@ model UserProfile {
   homeRadiusM   Int?
 }
 
+
+// Pour la suite du projet dans le cadre d'un system de favorit d'addresse 
 model SavedLocation {
   id          Int      @id @default(autoincrement())
   createdAt   DateTime @default(now())

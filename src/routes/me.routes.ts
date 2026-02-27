@@ -1,9 +1,147 @@
+// =========================================================
+// me.routes.ts (Express Router)
+// =========================================================
+// Ce router expose des routes "me" (profil + home + incidents)
+// - Certaines routes sont PUBLIC (mode=latest)
+// - D'autres exigent AUTH (mode=home, home/profile updates)
+// Auth via Clerk (@clerk/express).
+// DB via Prisma.
+// =========================================================
+
+// =========================================================
+// RÉSUMÉ 
+// =========================================================
+//
+// Ce module est le backend "compte utilisateur" de CrimeVision.
+// Il :
+// - Synchronise l'utilisateur avec Clerk
+// - Gère son domicile
+// - Fournit les incidents récents
+// - Fournit les incidents proches du domicile
+//
+// La partie Haversine permet de convertir
+// une distance entre deux points GPS
+// en mètres, afin d'appliquer un rayon
+// géographique précis.
+//
+// =========================================================
+// LOGIQUE GÉOGRAPHIQUE (HAVERSINE)
+// =========================================================
+//
+// Problème:
+// Les coordonnées sont en latitude/longitude (degrés).
+// Un rayon utilisateur est en mètres.
+// On doit convertir une distance entre 2 points GPS en mètres.
+//
+// Ce n'est PAS une conversion directe lat/long -> mètres.
+// C'est un calcul de distance sur une sphère (la Terre).
+//
+// ---------------------------------------------------------
+// Étape 1 : Préfiltre bounding box
+// ---------------------------------------------------------
+// Pour éviter de calculer la distance sur toute la base,
+// on crée un rectangle approximatif autour du domicile:
+//
+// latDelta = radius / 111 320
+// lngDelta = radius / (111 320 * cos(latitude))
+//
+// Pourquoi 111 320 ?
+// 1 degré de latitude ≈ 111 320 mètres.
+//
+// Cela crée un carré approximatif en degrés.
+// La base filtre déjà sur latitude/longitude dans cette zone.
+//
+// ---------------------------------------------------------
+// Étape 2 : Calcul exact avec Haversine
+// ---------------------------------------------------------
+// Formule utilisée : formule de Haversine.
+//
+// Elle calcule la distance entre deux points sur une sphère.
+//
+// R = 6 371 000m (rayon de la Terre)
+//
+// dist = 2R * asin( sqrt(
+//   sin²(dLat/2) +
+//   cos(lat1) * cos(lat2) * sin²(dLng/2)
+// ))
+//
+// Résultat : distance en mètres.
+//
+// ---------------------------------------------------------
+// Étape 3 : Filtrage final
+// ---------------------------------------------------------
+// On garde seulement les incidents dont
+// distance <= radiusM
+//
+// Puis on trie par distance croissante.
+//
+// =========================================================
+// =========================================================
+// STRUCTURE LOGIQUE DU MODULE
+// =========================================================
+//
+// 1) AUTHENTIFICATION
+// ---------------------------------------------------------
+// On utilise getAuth(req) de Clerk.
+// Si pas de userId -> 401 Unauthorized.
+// Sinon on récupère clerkId.
+//
+// 2) SYNCHRONISATION USER (UPSERT)
+// ---------------------------------------------------------
+// Chaque appel important fait un prisma.user.upsert().
+// Cela garantit que l'utilisateur Clerk existe en DB.
+// Si absent -> création.
+// Sinon -> rien ne change.
+// Permet un système "auto-sync" entre Clerk et Prisma.
+//
+// 3) GESTION DU PROFIL (UserProfile)
+// ---------------------------------------------------------
+// Le profil contient:
+// - homeLat
+// - homeLng
+// - homeRadiusM
+//
+// PATCH /home:
+//   - valide les données (type + range)
+//   - clamp le radius entre 50m et 50 000m
+//   - upsert le UserProfile
+//
+// DELETE /home:
+//   - reset homeLat/homeLng à null
+//   - remet radius par défaut (400m)
+//
+// 4) INCIDENTS (2 MODES)
+// ---------------------------------------------------------
+//
+// mode=latest (PUBLIC):
+//   - retourne les derniers incidents
+//   - supporte filtres category, years, months
+//   - tri par date desc
+//
+// mode=home (AUTH):
+//   - nécessite un home configuré
+//   - retourne incidents dans un rayon autour du domicile
+//
+
 import { Router } from "express";
 import { getAuth } from "@clerk/express";
 import prisma from "../prisma";
 
 const router = Router();
 
+
+// =========================================================
+// Helpers AUTH
+// =========================================================
+
+/**
+ * requireUserId
+ * - Lit l'auth Clerk sur la requête
+ * - Si pas de userId => 401 Unauthorized
+ * - Sinon retourne le clerkId (auth.userId)
+ *
+ * Note: ici on retourne un string (clerkId), et on retourne null si pas auth.
+ */
 function requireUserId(req: any, res: any) {
   const auth = getAuth(req);
   if (!auth.userId) {
@@ -17,6 +155,18 @@ function isFiniteNumber(x: any) {
   return typeof x === "number" && Number.isFinite(x);
 }
 
+
+// =========================================================
+// Helpers GEO
+// =========================================================
+/**
+ * metersBetween (Haversine)
+ * - Calcule la distance (en mètres) entre deux points GPS
+ * - Sert à filtrer les incidents dans un rayon autour de "home"
+ *
+ * R = rayon de la Terre ~ 6,371,000m
+ */
+
 function metersBetween(aLat: number, aLng: number, bLat: number, bLng: number) {
   const R = 6371000;
   const toRad = (x: number) => (x * Math.PI) / 180;
@@ -27,6 +177,7 @@ function metersBetween(aLat: number, aLng: number, bLat: number, bLng: number) {
   const lat1 = toRad(aLat);
   const lat2 = toRad(bLat);
 
+  // Formule de Haversine (distance sphérique)
   const s =
     Math.sin(dLat / 2) ** 2 +
     Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
@@ -37,6 +188,9 @@ function metersBetween(aLat: number, aLng: number, bLat: number, bLng: number) {
 // =======================================================
 // GET /api/me  → sync + return user (AUTH)
 // =======================================================
+// - Exige auth Clerk
+// - "Sync": crée le User en DB s'il n'existe pas (upsert)
+
 router.get("/", async (req, res) => {
   const clerkId = requireUserId(req, res);
   if (!clerkId) return;
@@ -54,6 +208,10 @@ router.get("/", async (req, res) => {
 // =======================================================
 // GET /api/me/profile (AUTH) — useful for Dashboard (READ)
 // =======================================================
+// - Exige auth
+// - Assure que user existe (upsert)
+// - Retourne uniquement le profile (ou null si absent)
+
 router.get("/profile", async (req, res) => {
   const clerkId = requireUserId(req, res);
   if (!clerkId) return;
@@ -71,6 +229,12 @@ router.get("/profile", async (req, res) => {
 // =======================================================
 // PATCH /api/me/home  (AUTH) — Update home location
 // =======================================================
+// - Exige auth
+// - Valide le payload : homeLat/homeLng/homeRadiusM
+// - Applique des limites (lat/lng range + radius 50..50k)
+// - Upsert user puis upsert userProfile (home settings)
+// - Retourne le profile mis à jour
+
 router.patch("/home", async (req, res) => {
   const clerkId = requireUserId(req, res);
   if (!clerkId) return;
@@ -131,6 +295,11 @@ router.patch("/home", async (req, res) => {
 // =======================================================
 // DELETE /api/me/home (AUTH)
 // =======================================================
+// - Exige auth
+// - Remet homeLat/homeLng à null
+// - Remet radius à 400 par défaut
+// - Retourne le profile après reset
+
 router.delete("/home", async (req, res) => {
   const clerkId = requireUserId(req, res);
   if (!clerkId) return;
@@ -152,10 +321,16 @@ router.delete("/home", async (req, res) => {
 
 // =======================================================
 // GET /api/me/incidents?mode=home|latest&limit=...&category=...&radiusM=...
-// + latest supports years/months filters:
-//    years=2025,2026
-//    months=0,1,11   (0-11 like JS Date.getMonth())
+// -------------------------------------------------------
+// Deux modes :
+// 1) mode=latest (PUBLIC) : renvoie les derniers incidents (option filtres date)
+// 2) mode=home   (AUTH)   : renvoie incidents proches du domicile de l'utilisateur
+//
+// latest supporte filtres:
+//   years=2025,2026
+//   months=0,1,11  (0-11 style JS Date.getMonth())
 // =======================================================
+
 router.get("/incidents", async (req, res) => {
   const mode = String(req.query.mode ?? "home").trim().toLowerCase();
   const category = req.query.category ? String(req.query.category) : null;
@@ -168,7 +343,9 @@ router.get("/incidents", async (req, res) => {
     ? Math.min(Math.max(rawLimit, 1), MAX_LIMIT)
     : DEFAULT_LIMIT;
 
-  // PUBLIC
+  // =====================================================
+  // MODE PUBLIC : latest
+  // =====================================================
   if (mode === "latest") {
     // ---- NEW: parse years/months filters (optional)
     const years = String(req.query.years ?? "")
@@ -232,7 +409,12 @@ router.get("/incidents", async (req, res) => {
     return res.json({ success: true, mode, items });
   }
 
-  // AUTH (home mode)
+  // =====================================================
+  // MODE AUTH : home
+  // =====================================================
+  // - Exige auth
+  // - Utilise homeLat/homeLng du profile
+  // - Filtre incidents dans un rayon
   const clerkId = requireUserId(req, res);
   if (!clerkId) return;
 
@@ -259,6 +441,12 @@ router.get("/incidents", async (req, res) => {
     });
   }
 
+
+  // =====================================================
+  // Optimisation perf:
+  // 1) On fait un "préfiltre" rectangle (bounding box)
+  // 2) Puis on calcule la vraie distance (Haversine)
+  // =====================================================
   const latDelta = radiusM / 111_320;
   const lngDelta = radiusM / (111_320 * Math.cos((homeLat * Math.PI) / 180));
 

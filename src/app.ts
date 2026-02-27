@@ -8,20 +8,24 @@ import { clerkMiddleware } from "@clerk/express";
 import meRouter from "./routes/me.routes";
 import userRoutes from "./routes/userRoutes";
 import locationsRoutes from "./routes/locations";
+import authRouter from "./routes/auth.routes";
+
+// =========================================================
+// BUT: CONFIGURATION DU SERVEUR
+// =========================================================
 
 // =========================================================
 // EXPRESS
 // =========================================================
 const app = express();
 app.use(express.json());
-
+app.use("/api/auth", authRouter);
 // =========================================================
 // CORS
 // =========================================================
 const allowedOrigins = [
   "http://localhost:5173",
   "https://crimevision-frontend.vercel.app",
-  // add your preview domain if you're testing it:
   "https://crimevision-frontend-a3wev43wi-simons-projects-55545dbc.vercel.app",
 ];
 
@@ -31,7 +35,6 @@ const corsOptions: cors.CorsOptions = {
 
     if (allowedOrigins.includes(origin)) return cb(null, true);
 
-    // allow all Vercel preview deployments
     if (origin.endsWith(".vercel.app")) return cb(null, true);
 
     return cb(new Error(`CORS blocked for origin: ${origin}`));

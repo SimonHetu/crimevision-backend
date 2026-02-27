@@ -1,7 +1,7 @@
 import { Request, Response } from "express"
 import { clerkClient, getAuth } from "@clerk/express"
 import { ensureUserFromClerk } from "../services/userService"
-import { prisma } from "../prisma"; // ajuste si ton prisma client est ailleurs
+import { prisma } from "../prisma";
 
 
 
@@ -56,13 +56,13 @@ export async function getMyIncidents(req: Request, res: Response) {
       return res.json({ incidents: [] });
     }
 
-    // ✅ radiusM venant du frontend OU fallback sur le profil
+    // radiusM venant du frontend ou fallback sur le profil
     const radiusM =
       Number(req.query.radiusM) ||
       prof.homeRadiusM ||
       1500;
 
-    // On charge les incidents (tu peux optimiser plus tard en SQL)
+    // Charge les incidents
     const incidents = await prisma.incident.findMany({
       where: {
         latitude: { not: null },

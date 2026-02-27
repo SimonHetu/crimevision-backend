@@ -38,3 +38,9 @@ npx tsx src/scripts/importLatestIncidents.ts
 
 ### Pour retirer les données de la table PDQ et les incidents reliés
 TRUNCATE TABLE "Pdq" RESTART IDENTITY CASCADE;
+
+
+
+
+#### Admin Seed
+npx tsx src/scripts/seedAdmin.ts
