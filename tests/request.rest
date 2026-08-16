@@ -30,6 +30,23 @@ Authorization: Bearer {{TOKEN}}
 GET http://localhost:3000/api/me
 Authorization: Bearer {{TOKEN}}
 
+// =========================================================
+// ----- PAYMENTS (Stripe Checkout) -----
+// =========================================================
+
+### create Stripe Checkout session ✔
+POST http://localhost:3000/api/payments/checkout-session
+Content-Type: application/json
+Authorization: Bearer {{TOKEN}}
+
+{
+  "priceId": "price_replace_me"
+}
+
+### get current subscription/payment status ✔
+GET http://localhost:3000/api/payments/status
+Authorization: Bearer {{TOKEN}}
+
 
 // =========================================================
 // ----- INCIDENTS -----

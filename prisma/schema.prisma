@@ -90,11 +90,15 @@ model User {
   clerkId      String?    @unique
   email        String?    @unique
   passwordHash String?
+  stripeCustomerId String? @unique
+  subscriptionStatus String @default("none")
+  subscriptionCurrentPeriodEnd DateTime?
 
   role      Role      @default(USER)
 
   profile   UserProfile?
   locations SavedLocation[]
+  payments  Payment[]
 }
 
 model UserProfile {
@@ -126,3 +130,25 @@ model SavedLocation {
   radiusM     Int
 }
 
+model Payment {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  stripeCheckoutSessionId String @unique
+  stripeCustomerId        String?
+  stripeSubscriptionId    String?
+  stripePaymentIntentId   String?
+
+  mode        String
+  status      String
+  amountTotal Int?
+  currency    String?
+
+  @@index([userId, createdAt])
+  @@index([stripeCustomerId])
+  @@index([stripeSubscriptionId])
+}

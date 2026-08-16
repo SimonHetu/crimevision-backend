@@ -9,6 +9,9 @@ import meRouter from "./routes/me.routes";
 import userRoutes from "./routes/userRoutes";
 import locationsRoutes from "./routes/locations";
 import authRouter from "./routes/auth.routes";
+import paymentsRouter from "./routes/payments.routes";
+import { handleStripeWebhook } from "./controllers/stripeWebhook.controller";
+import { stripeWebhookRawBody } from "./middleware/stripeWebhookRawBody";
 
 // =========================================================
 // BUT: CONFIGURATION DU SERVEUR
@@ -18,6 +21,7 @@ import authRouter from "./routes/auth.routes";
 // EXPRESS
 // =========================================================
 const app = express();
+app.post("/api/payments/webhook", stripeWebhookRawBody, handleStripeWebhook);
 app.use(express.json());
 app.use("/api/auth", authRouter);
 // =========================================================
@@ -61,5 +65,6 @@ app.use("/api/stats", statsRoutes);
 app.use("/api/me", meRouter);
 app.use("/api/users", userRoutes);
 app.use("/api/locations", locationsRoutes);
+app.use("/api/payments", paymentsRouter);
 
 export default app;
