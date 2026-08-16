@@ -2,9 +2,13 @@ import type { Request, Response, NextFunction } from "express";
 import { getAuth } from "@clerk/express";
 import {
   createCheckoutSession,
+  createSupportCheckoutSession,
   getOrCreateUserByClerkId,
   getPaymentStatus,
+  type SupportTier,
 } from "../services/paymentService";
+
+const supportTiers = new Set<SupportTier>(["support_1", "support_5", "support_10"]);
 
 async function requireCurrentUser(req: Request, res: Response) {
   const auth = getAuth(req);
@@ -47,3 +51,27 @@ export async function getStripePaymentStatus(req: Request, res: Response, next: 
   }
 }
 
+export async function createStripeSupportCheckoutSession(req: Request, res: Response, next: NextFunction) {
+  try {
+    const user = await requireCurrentUser(req, res);
+    if (!user) return;
+
+    const tier = typeof req.body?.tier === "string" ? req.body.tier : "";
+    if (!supportTiers.has(tier as SupportTier)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid support tier. Use support_1, support_5, or support_10.",
+      });
+    }
+
+    const session = await createSupportCheckoutSession(user, tier as SupportTier);
+
+    return res.json({ success: true, id: session.id, url: session.url });
+  } catch (err) {
+    if (err instanceof Error && err.message.includes("STRIPE_SUPPORT_PRICE_")) {
+      return res.status(500).json({ success: false, message: err.message });
+    }
+
+    next(err);
+  }
+}
