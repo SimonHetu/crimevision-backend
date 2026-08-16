@@ -2,6 +2,14 @@ import type Stripe from "stripe";
 import prisma from "../prisma";
 import { getStripe } from "./stripe";
 
+export type SupportTier = "support_1" | "support_5" | "support_10";
+
+const supportPriceEnvByTier: Record<SupportTier, string> = {
+  support_1: "STRIPE_SUPPORT_PRICE_1_ID",
+  support_5: "STRIPE_SUPPORT_PRICE_5_ID",
+  support_10: "STRIPE_SUPPORT_PRICE_10_ID",
+};
+
 function appUrl(path: string) {
   const baseUrl = process.env.APP_BASE_URL ?? "http://localhost:5173";
   return new URL(path, baseUrl).toString();
@@ -38,6 +46,28 @@ export async function createCheckoutSession(user: Awaited<ReturnType<typeof getO
     client_reference_id: String(user.id),
     metadata: {
       userId: String(user.id),
+    },
+  });
+}
+
+export async function createSupportCheckoutSession(
+  user: Awaited<ReturnType<typeof getOrCreateUserByClerkId>>,
+  tier: SupportTier,
+) {
+  const priceId = getSupportPriceId(tier);
+  const customerId = await getOrCreateStripeCustomerId(user);
+
+  return getStripe().checkout.sessions.create({
+    mode: "payment",
+    customer: customerId,
+    line_items: [{ price: priceId, quantity: 1 }],
+    success_url: appUrl("/support/success?session_id={CHECKOUT_SESSION_ID}"),
+    cancel_url: appUrl("/support/cancel"),
+    client_reference_id: String(user.id),
+    metadata: {
+      userId: String(user.id),
+      tier,
+      kind: "support",
     },
   });
 }
@@ -79,6 +109,17 @@ export async function handleStripeEvent(event: Stripe.Event) {
     default:
       break;
   }
+}
+
+function getSupportPriceId(tier: SupportTier) {
+  const envName = supportPriceEnvByTier[tier];
+  const priceId = process.env[envName];
+
+  if (!priceId) {
+    throw new Error(`${envName} missing on server`);
+  }
+
+  return priceId;
 }
 
 async function getOrCreateStripeCustomerId(user: Awaited<ReturnType<typeof getOrCreateUserByClerkId>>) {
@@ -161,4 +202,3 @@ async function handleSubscriptionChanged(subscription: Stripe.Subscription) {
     },
   });
 }
-
