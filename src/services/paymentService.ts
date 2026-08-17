@@ -51,21 +51,21 @@ export async function createCheckoutSession(user: Awaited<ReturnType<typeof getO
 }
 
 export async function createSupportCheckoutSession(
-  user: Awaited<ReturnType<typeof getOrCreateUserByClerkId>>,
+  user: Awaited<ReturnType<typeof getOrCreateUserByClerkId>> | null,
   tier: SupportTier,
 ) {
   const priceId = getSupportPriceId(tier);
-  const customerId = await getOrCreateStripeCustomerId(user);
+  const customerId = user ? await getOrCreateStripeCustomerId(user) : null;
 
   return getStripe().checkout.sessions.create({
     mode: "payment",
-    customer: customerId,
+    ...(customerId ? { customer: customerId } : {}),
     line_items: [{ price: priceId, quantity: 1 }],
     success_url: appUrl("/support/success?session_id={CHECKOUT_SESSION_ID}"),
     cancel_url: appUrl("/support/cancel"),
-    client_reference_id: String(user.id),
+    ...(user ? { client_reference_id: String(user.id) } : {}),
     metadata: {
-      userId: String(user.id),
+      ...(user ? { userId: String(user.id) } : {}),
       tier,
       kind: "support",
     },
