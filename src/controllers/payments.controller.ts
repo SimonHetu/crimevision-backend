@@ -53,8 +53,8 @@ export async function getStripePaymentStatus(req: Request, res: Response, next: 
 
 export async function createStripeSupportCheckoutSession(req: Request, res: Response, next: NextFunction) {
   try {
-    const user = await requireCurrentUser(req, res);
-    if (!user) return;
+    const auth = getAuth(req);
+    const user = auth.userId ? await getOrCreateUserByClerkId(auth.userId) : null;
 
     const tier = typeof req.body?.tier === "string" ? req.body.tier : "";
     if (!supportTiers.has(tier as SupportTier)) {
