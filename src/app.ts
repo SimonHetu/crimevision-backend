@@ -31,6 +31,8 @@ const allowedOrigins = [
   "http://localhost:5173",
   "https://crimevision-frontend.vercel.app",
   "https://crimevision-frontend-a3wev43wi-simons-projects-55545dbc.vercel.app",
+  "https://www.crimevision.ca",
+  "https://crimevision.ca",
 ];
 
 const corsOptions: cors.CorsOptions = {
