@@ -71,7 +71,7 @@ function requestUrl(req: ApiRequest) {
 }
 
 async function handlePdq(res: ApiResponse) {
-  const rows = await getSql()('SELECT * FROM "Pdq" ORDER BY "id" ASC');
+  const rows = await getSql().query('SELECT * FROM "Pdq" ORDER BY "id" ASC');
   return res.status(200).json({ success: true, data: rows });
 }
 
@@ -130,7 +130,7 @@ async function handleIncidents(req: ApiRequest, res: ApiResponse) {
 
   const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
   const query = `SELECT * FROM "Incident" ${whereSql} ORDER BY "date" DESC LIMIT $${params.length}`;
-  const rows = await getSql()(query, params);
+  const rows = await getSql().query(query, params);
 
   return res.status(200).json({ success: true, data: rows });
 }
