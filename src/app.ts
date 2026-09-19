@@ -17,6 +17,7 @@ const app = express();
 app.post("/api/payments/webhook", stripeWebhookRawBody, handleStripeWebhook);
 app.use(express.json());
 app.use("/api/auth", authRouter);
+
 const allowedOrigins = [
   "http://localhost:5173",
   "http://127.0.0.1:5173",
@@ -44,14 +45,25 @@ const corsOptions: cors.CorsOptions = {
 app.use(cors(corsOptions));
 app.options(/.*/, cors(corsOptions));
 
-app.use(clerkMiddleware());
+app.get("/api/health", (_req, res) => {
+  res.json({ success: true, status: "ok" });
+});
 
 app.use("/api/incidents", incidentsRouter);
 app.use("/api/pdq", pdqRouter);
 app.use("/api/stats", statsRoutes);
+
+app.use(clerkMiddleware());
+
 app.use("/api/me", meRouter);
 app.use("/api/users", userRoutes);
 app.use("/api/locations", locationsRoutes);
 app.use("/api/payments", paymentsRouter);
+
+app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  const message = err instanceof Error ? err.message : "Internal server error";
+  console.error("Unhandled API error", err);
+  res.status(500).json({ success: false, message });
+});
 
 export default app;

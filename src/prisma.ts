@@ -6,9 +6,25 @@ import ws from "ws";
 
 neonConfig.webSocketConstructor = ws;
 
-const connectionString = process.env.DATABASE_URL!;
+let prismaClient: PrismaClient | null = null;
 
-const adapter = new PrismaNeon({ connectionString });
+function getPrismaClient() {
+  if (prismaClient) return prismaClient;
 
-export const prisma = new PrismaClient({ adapter });
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    throw new Error("DATABASE_URL is not set on the server");
+  }
+
+  const adapter = new PrismaNeon({ connectionString });
+  prismaClient = new PrismaClient({ adapter });
+  return prismaClient;
+}
+
+export const prisma = new Proxy({} as PrismaClient, {
+  get(_target, prop, receiver) {
+    return Reflect.get(getPrismaClient(), prop, receiver);
+  },
+});
+
 export default prisma;
