@@ -3,8 +3,6 @@ import { clerkClient, getAuth } from "@clerk/express"
 import { ensureUserFromClerk } from "../services/userService"
 import { prisma } from "../prisma";
 
-
-
 export async function getCurrentUser(req: Request, res: Response) {
   try {
     const { userId } = getAuth(req)
@@ -45,7 +43,6 @@ export async function getMyIncidents(req: Request, res: Response) {
     const { userId } = getAuth(req);
     if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
-    // Récupère l'utilisateur + profile (homeLat/homeLng/homeRadiusM)
     const user = await prisma.user.findUnique({
       where: { clerkId: userId },
       include: { profile: true },
@@ -56,13 +53,11 @@ export async function getMyIncidents(req: Request, res: Response) {
       return res.json({ incidents: [] });
     }
 
-    // radiusM venant du frontend ou fallback sur le profil
     const radiusM =
       Number(req.query.radiusM) ||
       prof.homeRadiusM ||
       1500;
 
-    // Charge les incidents
     const incidents = await prisma.incident.findMany({
       where: {
         latitude: { not: null },

@@ -13,22 +13,13 @@ import paymentsRouter from "./routes/payments.routes";
 import { handleStripeWebhook } from "./controllers/stripeWebhook.controller";
 import { stripeWebhookRawBody } from "./middleware/stripeWebhookRawBody";
 
-// =========================================================
-// BUT: CONFIGURATION DU SERVEUR
-// =========================================================
-
-// =========================================================
-// EXPRESS
-// =========================================================
 const app = express();
 app.post("/api/payments/webhook", stripeWebhookRawBody, handleStripeWebhook);
 app.use(express.json());
 app.use("/api/auth", authRouter);
-// =========================================================
-// CORS
-// =========================================================
 const allowedOrigins = [
   "http://localhost:5173",
+  "http://127.0.0.1:5173",
   "https://crimevision-frontend.vercel.app",
   "https://crimevision-frontend-a3wev43wi-simons-projects-55545dbc.vercel.app",
   "https://www.crimevision.ca",
@@ -53,14 +44,8 @@ const corsOptions: cors.CorsOptions = {
 app.use(cors(corsOptions));
 app.options(/.*/, cors(corsOptions));
 
-// =========================================================
-// CLERK
-// =========================================================
 app.use(clerkMiddleware());
 
-// =========================================================
-// Routes
-// =========================================================
 app.use("/api/incidents", incidentsRouter);
 app.use("/api/pdq", pdqRouter);
 app.use("/api/stats", statsRoutes);

@@ -4,7 +4,6 @@ import jwt from "jsonwebtoken";
 import type { Secret, SignOptions } from "jsonwebtoken";
 import prisma from "../prisma";
 
-
 export async function loginLocal(req: Request, res: Response, next: NextFunction) {
   try {
     const { email, password } = req.body as { email?: string; password?: string };

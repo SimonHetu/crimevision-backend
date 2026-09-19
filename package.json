@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "tsx watch ./server.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "import:nyc": "tsx src/scripts/importNycIncidents.ts",
+    "import:nyc:latest": "tsx src/scripts/importLatestNycIncidents.ts"
   },
   "keywords": [],
   "author": "",
