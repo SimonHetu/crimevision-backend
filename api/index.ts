@@ -1,5 +1,3 @@
-import app from "../src/app";
-
 type ApiRequest = {
   method?: string;
   url?: string;
@@ -12,6 +10,13 @@ type ApiResponse = {
   json(body: unknown): void;
   end(): void;
 };
+
+let appHandler: any;
+
+function getApp() {
+  appHandler ??= require("../src/app").default;
+  return appHandler;
+}
 
 function setCors(req: ApiRequest, res: ApiResponse) {
   const origin = req.headers.origin;
@@ -45,5 +50,11 @@ export default function handler(req: ApiRequest, res: ApiResponse) {
     return res.status(200).json({ success: true, status: "ok" });
   }
 
-  return app(req, res);
+  try {
+    return getApp()(req, res);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Backend failed to start";
+    console.error("Backend startup failed", err);
+    return res.status(500).json({ success: false, message });
+  }
 }
