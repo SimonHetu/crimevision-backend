@@ -1,15 +1,12 @@
 generator client {
-  provider = "prisma-client" // Librairie TypeScript utilisée par le backend pour parler à la DB
-  output   = "../generated/prisma" // Emplacement du client prisma généré
+  provider = "prisma-client"
+  output   = "../generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql" // La base de donnée utilisée
-  
-  
+  provider = "postgresql"
 }
 
-// Enums: Liste prédéfinie de valeur autorisées pour un champ
 enum TimePeriod {
   jour
   nuit
@@ -22,79 +19,150 @@ enum Role {
   MODERATOR
 }
 
-
 model Pdq {
-  id              Int        @id
-  name            String     @default("")
-  address         String     @default("")
-  cityCode        String     @default("")
-  latitude        Float      @default(0)
-  longitude       Float      @default(0)
+  id        Int    @id
+  name      String @default("")
+  address   String @default("")
+  cityCode  String @default("")
+  latitude  Float  @default(0)
+  longitude Float  @default(0)
 
-  incidents Incident[] // Relation qui definit que 1 PDQ peut etre relier a plusieurs incidents        
+  incidents Incident[]
 }
 
 model Incident {
-  id              Int       @id @default(autoincrement())
-  source          String  // Nom du fournisseur des données
-  sourceId        Int     // Identifiant unique de la source externe
+  id       Int    @id @default(autoincrement())
+  source   String
+  sourceId String
 
-  @@unique([source, sourceId], name: "source_sourceId") 
-  // La combinaison source et sourceId doit etre unique, sourceId peut exister plusieurs fois mais pas pour la meme source
+  category          String
+  sourceCategory    String?
+  sourceSubcategory String?
+  severity          String?
 
-  category        String    // Document de définition des incidents
-  date            DateTime
-  timePeriod      TimePeriod // Choix enum
+  city    String?
+  region  String?
+  country String?
 
-  // Geometrie 
-  x               Float?
-  y               Float?
-  longitude       Float? // Explication dans le document de présentation
-  latitude        Float?
+  date          DateTime
+  occurredAt    DateTime?
+  occurredAtEnd DateTime?
+  reportedAt    DateTime?
+  timePeriod    TimePeriod?
 
-  // PDQ Id et relation (1 à N)
-  pdqId           Int
-  pdq             Pdq       @relation(fields: [pdqId], references: [id])
+  x         Float?
+  y         Float?
+  longitude Float?
+  latitude  Float?
 
-  // Indexes
-  @@index([pdqId, date]) // Pour chercher par PDQ + date
-  @@index([date]) // Par date: pour incident recent, dernier 7 jours, dernier 30 jours
+  policeDistrict String?
+  precinct       String?
+  borough        String?
+  neighborhood   String?
+  locationType   String?
+  premiseType    String?
+
+  victimAgeGroup  String?
+  victimSex       String?
+  victimRace      String?
+  suspectAgeGroup String?
+  suspectSex      String?
+  suspectRace     String?
+  weapon          String?
+  domesticRelated Boolean?
+  hateCrime       Boolean?
+  shootingRelated Boolean?
+
+  raw Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  pdqId Int?
+  pdq   Pdq? @relation(fields: [pdqId], references: [id])
+
+  @@unique([source, sourceId], name: "source_sourceId")
+  @@index([source, date])
+  @@index([city, date])
+  @@index([pdqId, date])
+  @@index([date])
   @@index([category])
-  @@index([pdqId, category, date]) // combo de recherche pdq, categorie et data
-
+  @@index([category, date])
+  @@index([pdqId, category, date])
+  @@index([latitude, longitude])
 }
 
-// Pour le suivi des incréments d'import
 model ImportCursor {
-  source        String   @id
-  lastDate      DateTime?
-  lastSourceId  Int?
-  lastRunAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  source       String    @id
+  lastDate     DateTime?
+  lastSourceId String?
+  lastRunAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 }
 
-// Pour le suivi des incréments d'import déjà importer en reculant
 model ImportBootstrapState {
-  id          String   @id @default("spvm_incidents_bootstrap")
-  source      String   @unique
-  nextOffset  Int      @default(0)
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default("spvm_incidents_bootstrap")
+  source     String   @unique
+  nextOffset Int      @default(0)
+  updatedAt  DateTime @updatedAt
 }
 
+model DataSource {
+  id        String  @id
+  name      String
+  city      String?
+  region    String?
+  country   String?
+  provider  String?
+  sourceUrl String?
+
+  supportsPointLocation Boolean @default(false)
+  supportsVictimFields  Boolean @default(false)
+  supportsSuspectFields Boolean @default(false)
+  supportsSexCrimes     Boolean @default(false)
+  supportsHomicide      Boolean @default(false)
+  supportsReportedDate  Boolean @default(false)
+  supportsOccurredTime  Boolean @default(false)
+
+  coverage  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ImportRun {
+  id         Int       @id @default(autoincrement())
+  source     String
+  mode       String
+  status     String
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+
+  fetchedCount  Int @default(0)
+  insertedCount Int @default(0)
+  updatedCount  Int @default(0)
+  skippedCount  Int @default(0)
+  errorCount    Int @default(0)
+
+  message  String?
+  metadata Json?
+
+  @@index([source, startedAt])
+  @@index([status, startedAt])
+}
 
 model User {
-  id        Int       @id @default(autoincrement())
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  clerkId      String?    @unique
-  email        String?    @unique
-  passwordHash String?
-  stripeCustomerId String? @unique
-  subscriptionStatus String @default("none")
+  clerkId                      String?   @unique
+  email                        String?   @unique
+  passwordHash                 String?
+  stripeCustomerId             String?   @unique
+  subscriptionStatus           String    @default("none")
   subscriptionCurrentPeriodEnd DateTime?
 
-  role      Role      @default(USER)
+  role Role @default(USER)
 
   profile   UserProfile?
   locations SavedLocation[]
@@ -102,32 +170,30 @@ model User {
 }
 
 model UserProfile {
-  id            Int      @id @default(autoincrement())
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  userId        Int      @unique
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  homeLat       Float?
-  homeLng       Float?
-  homeRadiusM   Int?
+  homeLat     Float?
+  homeLng     Float?
+  homeRadiusM Int?
 }
 
-
-// Pour la suite du projet dans le cadre d'un system de favorit d'addresse 
 model SavedLocation {
-  id          Int      @id @default(autoincrement())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  label       String
-  lat         Float
-  lng         Float
-  radiusM     Int
+  label   String
+  lat     Float
+  lng     Float
+  radiusM Int
 }
 
 model Payment {
@@ -138,7 +204,7 @@ model Payment {
   userId Int
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  stripeCheckoutSessionId String @unique
+  stripeCheckoutSessionId String  @unique
   stripeCustomerId        String?
   stripeSubscriptionId    String?
   stripePaymentIntentId   String?

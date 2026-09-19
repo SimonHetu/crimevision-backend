@@ -2,65 +2,74 @@ import type { Request, Response, NextFunction } from "express";
 import type { Prisma, TimePeriod } from "../../generated/prisma/client";
 import prisma from "../prisma";
 
-// =========================================================
-// GET /api/incidents
-// =========================================================
-// Fonction controlleur pour GET /api/incidents
+function parseIsoDayStart(value: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+  const date = new Date(`${value}T00:00:00.000Z`);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function parseIsoMonthStart(value: string) {
+  if (!/^\d{4}-\d{2}$/.test(value)) return null;
+  const date = new Date(`${value}-01T00:00:00.000Z`);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 export async function getIncidents(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
   try {
-    // Définition des paramètres de requête url
-    // Example: /api/incidents?pdqId=30&timePeriod=jour
-    const { timePeriod, pdqId, category, limit = "5000" } = req.query as {
+    const { timePeriod, pdqId, category, source, city, date, dateMode, limit = "5000" } = req.query as {
       timePeriod?: string;
       pdqId?: string;
       category?: string;
+      source?: string;
+      city?: string;
+      date?: string;
+      dateMode?: string;
       limit?: string;
     };
-    // Validation des valeurs de timePeriod
-    // Doivent être dans l'enum du schema sinon elles sont ignorées
     const timePeriodValue: TimePeriod | undefined =
       timePeriod === "jour" || timePeriod === "nuit" || timePeriod === "soir"
         ? (timePeriod as TimePeriod)
         : undefined;
 
-    // Conversion des strings reçues et requête url en type acceptable pour la DB
     const pdqIdValue = pdqId ? Number(pdqId) : undefined;
     const categoryValue = category || undefined;
-    
-    // Limite sécuritaire
-    const rawLimit = Number(limit);
-    // Si invalid ou en bas de 1 assigne la valeur par défault (100)
-    let limitValue = (!rawLimit || rawLimit < 1) ? 5000 : rawLimit;
-    // Maximum par requête
-    limitValue = Math.min(limitValue, 30000);
+    const sourceValue = source || undefined;
+    const cityValue = city || undefined;
+    const isMonthMode = dateMode === "month";
+    const dateStart = date ? (isMonthMode ? parseIsoMonthStart(date) : parseIsoDayStart(date)) : null;
+    const dateEnd = dateStart
+      ? isMonthMode
+        ? new Date(Date.UTC(dateStart.getUTCFullYear(), dateStart.getUTCMonth() + 1, 1))
+        : new Date(dateStart.getTime() + 24 * 60 * 60 * 1000)
+      : null;
 
-    // Construction de l'objet where basé sur le schema prisma
+    const rawLimit = Number(limit);
+    let limitValue = (!rawLimit || rawLimit < 1) ? 5000 : rawLimit;
+    limitValue = Math.min(limitValue, 100000);
+
     const where: Prisma.IncidentWhereInput = {};
     if (timePeriodValue) where.timePeriod = timePeriodValue;
     if (pdqIdValue !== undefined) where.pdqId = pdqIdValue;
     if (categoryValue) where.category = categoryValue;
+    if (sourceValue) where.source = sourceValue;
+    if (cityValue) where.city = cityValue;
+    if (dateStart && dateEnd) where.date = { gte: dateStart, lt: dateEnd };
 
-    // Prisma génère la requête SQL avec les champs de where
     const incidents = await prisma.incident.findMany({
       where,
+      orderBy: { date: "desc" },
       take: limitValue,
     });
 
-    // Res reçoit les données retournées dans incidents en format json
     res.json({ success: true, data: incidents });
   } catch (err) {
     next(err);
   }
 }
-
-
-// =========================================================
-// GET /api/incidents/:id
-// =========================================================
 
 export async function getIncidentById(
   req: Request,
