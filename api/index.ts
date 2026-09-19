@@ -1,7 +1,24 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
-import app from "../src/app";
+type ApiRequest = {
+  method?: string;
+  url?: string;
+  headers: { origin?: string | string[] };
+};
 
-function setCors(req: VercelRequest, res: VercelResponse) {
+type ApiResponse = {
+  setHeader(name: string, value: string): void;
+  status(code: number): ApiResponse;
+  json(body: unknown): void;
+  end(): void;
+};
+
+let appHandler: any;
+
+function getApp() {
+  appHandler ??= require("../src/app").default;
+  return appHandler;
+}
+
+function setCors(req: ApiRequest, res: ApiResponse) {
   const origin = req.headers.origin;
   const allowedOrigins = new Set([
     "http://localhost:5173",
@@ -22,7 +39,7 @@ function setCors(req: VercelRequest, res: VercelResponse) {
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS");
 }
 
-export default function handler(req: VercelRequest, res: VercelResponse) {
+export default function handler(req: ApiRequest, res: ApiResponse) {
   setCors(req, res);
 
   if (req.method === "OPTIONS") {
@@ -33,5 +50,11 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json({ success: true, status: "ok" });
   }
 
-  return app(req, res);
+  try {
+    return getApp()(req, res);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Backend failed to start";
+    console.error("Backend startup failed", err);
+    return res.status(500).json({ success: false, message });
+  }
 }
