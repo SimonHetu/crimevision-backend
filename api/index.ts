@@ -1,7 +1,19 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
 import app from "../src/app";
 
-function setCors(req: VercelRequest, res: VercelResponse) {
+type ApiRequest = {
+  method?: string;
+  url?: string;
+  headers: { origin?: string | string[] };
+};
+
+type ApiResponse = {
+  setHeader(name: string, value: string): void;
+  status(code: number): ApiResponse;
+  json(body: unknown): void;
+  end(): void;
+};
+
+function setCors(req: ApiRequest, res: ApiResponse) {
   const origin = req.headers.origin;
   const allowedOrigins = new Set([
     "http://localhost:5173",
@@ -22,7 +34,7 @@ function setCors(req: VercelRequest, res: VercelResponse) {
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS");
 }
 
-export default function handler(req: VercelRequest, res: VercelResponse) {
+export default function handler(req: ApiRequest, res: ApiResponse) {
   setCors(req, res);
 
   if (req.method === "OPTIONS") {
