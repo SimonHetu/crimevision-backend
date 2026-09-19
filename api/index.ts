@@ -1,6 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-
-let appPromise: Promise<any> | null = null;
+import app from "../src/app";
 
 function setCors(req: VercelRequest, res: VercelResponse) {
   const origin = req.headers.origin;
@@ -23,7 +22,7 @@ function setCors(req: VercelRequest, res: VercelResponse) {
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS");
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default function handler(req: VercelRequest, res: VercelResponse) {
   setCors(req, res);
 
   if (req.method === "OPTIONS") {
@@ -34,13 +33,5 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json({ success: true, status: "ok" });
   }
 
-  try {
-    appPromise ??= import("../src/app").then((mod) => mod.default);
-    const app = await appPromise;
-    return app(req, res);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Backend failed to start";
-    console.error("Backend startup failed", err);
-    return res.status(500).json({ success: false, message });
-  }
+  return app(req, res);
 }
