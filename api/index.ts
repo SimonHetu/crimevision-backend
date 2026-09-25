@@ -129,7 +129,30 @@ async function handleIncidents(req: ApiRequest, res: ApiResponse) {
   params.push(limit);
 
   const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
-  const query = `SELECT * FROM "Incident" ${whereSql} ORDER BY "date" DESC LIMIT $${params.length}`;
+    const query = `
+    SELECT
+      "id",
+      "source",
+      "sourceId",
+      "category",
+      "sourceCategory",
+      "date",
+      "occurredAt",
+      "reportedAt",
+      "latitude",
+      "longitude",
+      "pdqId",
+      "city",
+      "borough",
+      "precinct",
+      "locationType",
+      "premiseType",
+      "suspectRace"
+    FROM "Incident"
+    ${whereSql}
+    ORDER BY "date" DESC
+    LIMIT $${params.length}
+  `;
   const rows = await getSql().query(query, params);
 
   return res.status(200).json({ success: true, data: rows });
