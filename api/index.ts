@@ -1,5 +1,7 @@
 import { neon } from "@neondatabase/serverless";
 
+export const config = { maxDuration: 240 };
+
 type ApiRequest = {
   method?: string;
   url?: string;

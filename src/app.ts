@@ -12,6 +12,7 @@ import authRouter from "./routes/auth.routes";
 import paymentsRouter from "./routes/payments.routes";
 import { handleStripeWebhook } from "./controllers/stripeWebhook.controller";
 import { stripeWebhookRawBody } from "./middleware/stripeWebhookRawBody";
+import cronRouter from "./routes/cron.routes";
 
 const app = express();
 app.post("/api/payments/webhook", stripeWebhookRawBody, handleStripeWebhook);
@@ -52,6 +53,7 @@ app.get("/api/health", (_req, res) => {
 app.use("/api/incidents", incidentsRouter);
 app.use("/api/pdq", pdqRouter);
 app.use("/api/stats", statsRoutes);
+app.use("/api/cron", cronRouter);
 
 app.use(clerkMiddleware());
 

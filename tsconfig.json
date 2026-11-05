@@ -17,5 +17,5 @@
     "moduleDetection": "auto",
     "sourceMap": true
   },
-  "include": ["src", "generated/prisma"]
+  "include": ["src", "generated/prisma", "api"]
 }
